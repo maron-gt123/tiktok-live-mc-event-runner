@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tiktok-live
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tiktok-live
+  template:
+    metadata:
+      labels:
+        app: tiktok-live
+    spec:
+      containers:
+        - name: tiktok-live
+          image: marongt123/tiktok-live-mc-event-runner:latest
+          imagePullPolicy: Always
+          env:
+            - name: TIKTOK_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secret-tiktok_user
+                  key: TIKTOK_USER
