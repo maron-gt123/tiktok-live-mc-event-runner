@@ -11,8 +11,8 @@ from TikTokLive.client.errors import UserOfflineError
 
 # ===== 設定 =====
 TIKTOK_USER = os.environ.get("TIKTOK_USER")
-MC_ENDPOINT = config["minecraft"]["endpoint"]
-RECONNECT_INTERVAL = config["runtime"].get("reconnect_interval", 30)
+MC_ENDPOINT = os.environ.get("MC_ENDPOINT")
+RECONNECT_INTERVAL = os.environ.get("RECONNECT_INTERVAL")
 
 client = TikTokLiveClient(unique_id=TIKTOK_USER)
 
