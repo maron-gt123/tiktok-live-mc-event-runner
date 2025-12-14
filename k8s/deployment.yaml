@@ -20,5 +20,5 @@ spec:
             - name: TIKTOK_USER
               valueFrom:
                 secretKeyRef:
-                  name: secret-tiktok_user
+                  name: secret-tiktok-user
                   key: TIKTOK_USER
