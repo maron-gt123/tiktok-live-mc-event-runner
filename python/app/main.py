@@ -11,10 +11,8 @@ from TikTokLive.client.errors import UserOfflineError
 
 # ===== 設定 =====
 TIKTOK_USER = os.environ.get("TIKTOK_USER")
-MC_ENDPOINT = os.environ.get(
-    "MC_ENDPOINT",
-    "http://minecraft-server:8080/tiktok/event"
-)
+MC_ENDPOINT = config["minecraft"]["endpoint"]
+RECONNECT_INTERVAL = config["runtime"].get("reconnect_interval", 30)
 
 client = TikTokLiveClient(unique_id=TIKTOK_USER)
 
@@ -94,6 +92,7 @@ async def on_join(event):
 while True:
     try:
         print("connecting...")
+        client = TikTokLiveClient(unique_id=TIKTOK_USER)
         client.run()
     except UserOfflineError:
         print("offline, retry 30s")
