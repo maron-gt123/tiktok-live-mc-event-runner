@@ -24,4 +24,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: your-dockerhub-username/tiktok-live:latest
+          tags: marongt123/tiktok-live-mc-event-runner:latest
