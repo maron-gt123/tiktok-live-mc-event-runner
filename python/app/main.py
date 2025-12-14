@@ -17,3 +17,18 @@ async def on_gift(event: GiftEvent):
     print(f"[GIFT] {event.user.nickname} -> {event.gift.name} x{event.repeat_count}")
 
 client.run()
+# すべてのイベントを捕まえる
+@client.on("event")
+async def on_any_event(event):
+    print("\n=== EVENT RECEIVED ===")
+    print(type(event))
+    print(vars(event))
+    print("======================\n")
+
+while True:
+    try:
+        print("connecting...")
+        client.run()
+    except UserOfflineError:
+        print("LIVE offline. retry in 30s")
+        time.sleep(30)
