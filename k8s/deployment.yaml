@@ -28,4 +28,4 @@ spec:
                   name: secret-tiktok-user
                   key: MC_ENDPOINT
             - name: RECONNECT_INTERVAL
-              value : 30
+              value : "30"
