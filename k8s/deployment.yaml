@@ -22,3 +22,10 @@ spec:
                 secretKeyRef:
                   name: secret-tiktok-user
                   key: TIKTOK_USER
+            - name: MC_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: secret-tiktok-user
+                  key: MC_ENDPOINT
+            - name: RECONNECT_INTERVAL
+              value : 30
