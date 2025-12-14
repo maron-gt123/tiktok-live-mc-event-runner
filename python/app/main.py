@@ -54,11 +54,16 @@ async def on_gift(event):
         "repeat_end": event.repeat_end,
     })
 
+like_counter = 0
+
 @client.on(LikeEvent)
-async def on_like(event):
+async def on_like(event: LikeEvent):
+    global like_counter
+    like_counter += 1
+
     send_to_mc("like", {
-        "count": event.like_count,
-        "total": event.total_like_count,
+        "increment": 1,
+        "total_local": like_counter
     })
 
 @client.on(FollowEvent)
