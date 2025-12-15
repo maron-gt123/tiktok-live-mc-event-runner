@@ -16,16 +16,3 @@ spec:
         - name: tiktok-live
           image: marongt123/tiktok-live-mc-event-runner:latest
           imagePullPolicy: Always
-          env:
-            - name: TIKTOK_USER
-              valueFrom:
-                secretKeyRef:
-                  name: secret-tiktok-user
-                  key: TIKTOK_USER
-            - name: MC_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  name: secret-tiktok-user
-                  key: MC_ENDPOINT
-            - name: RECONNECT_INTERVAL
-              value: "30"
