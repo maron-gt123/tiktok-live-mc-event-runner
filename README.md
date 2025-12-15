@@ -20,3 +20,16 @@ Minecraft 側のプラグインと連携することで、自由に演出・妨�
 * Docker / Kubernetes 対応
 * Minecraft 側の実装と完全分離
 * Stream To Earn / TikFinity 等の代替・補助用途にも利用可能
+
+# 全体構成
+
+      TikTok Live
+         ↓
+      Python Event Runner
+         ↓ HTTP (JSON)
+      Minecraft Plugin
+
+この構成により以下を実現しています<br>
+* TikTok 側の仕様変更が Minecraft に影響しにくい
+* Minecraft 側の妨害ロジックを自由に差し替え可能
+* 配信者に Python 環境を要求しない
