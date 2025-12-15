@@ -16,3 +16,11 @@ spec:
         - name: tiktok-live
           image: marongt123/tiktok-live-mc-event-runner:latest
           imagePullPolicy: Always
+          volumeMounts:
+            - name: access-config
+              mountPath: /app/config.yaml
+              subPath: access-config.yaml
+      volumes:
+        - name: access-config
+          configMap:
+            name: access-config
