@@ -3,8 +3,8 @@
 # =========================
 tiktok:
   # 監視する TikTok 配信者の unique_id
-  # 例: https://www.tiktok.com/@nosu_kero_kero
-  user: nosu_kero_kero
+  # 例: https://www.tiktok.com/@yous_name
+  user: yous_name
 
 # =========================
 # 探知イベント送信先
