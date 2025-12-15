@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: access-config
+data:
+  access-config.yaml: |
+    # =========================
+    # TikTok Live 設定
+    # =========================
+    tiktok:
+      # 監視する TikTok 配信者の unique_id
+      # 例: https://www.tiktok.com/@yous_name
+      user: yous_name
+    
+    # =========================
+    # 探知イベント送信先
+    # =========================
+    sender:
+      endpoints:
+        # Minecraft (Paper / Spigot プラグイン)
+        - name: minecraft
+          url: http://minecraft:8080/event
+    
+        # ローカル検証用（必要なければ削除OK）
+        - name: debug
+          url: http://localhost:9000/debug
+    
+    # =========================
+    # HTTP 通信設定
+    # =========================
+    http:
+      # 各送信先への POST タイムアウト（秒）
+      timeout: 2
