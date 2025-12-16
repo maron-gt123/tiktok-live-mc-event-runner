@@ -1,0 +1,22 @@
+name: TikTokMCEvent
+main: jp.example.tiktok.TikTokMCEventPlugin
+version: 0.1.0
+api-version: 1.20
+author: maron-gt123
+
+# プラグインの説明
+description: >
+  TikTokライブのイベントをMinecraftサーバーで処理するプラグイン。
+  Like、Follow、ギフトに応じてアクションを実行可能。
+
+# サーバー起動時に生成する設定ファイル
+commands: {}
+
+# 設定ファイル
+default-config: true
+
+# 必要な権限（例）
+permissions:
+  tiktokmc.use:
+    description: Allows using TikTok MC Event features
+    default: true
