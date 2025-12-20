@@ -14,6 +14,10 @@ public class TrapBoxManager {
     private Material material;
     private World world;
 
+    // 自動変換フラグ
+    private boolean autoConvertEnabled = false;
+
+    // 枠のブロック（保護対象）
     private final Set<Location> placedBlocks = new HashSet<>();
 
     /* =========================
@@ -26,6 +30,14 @@ public class TrapBoxManager {
 
     public TrapBox getTrapBox() {
         return trapBox;
+    }
+
+    public boolean isAutoConvertEnabled() {
+        return autoConvertEnabled;
+    }
+
+    public void setAutoConvertEnabled(boolean enabled) {
+        this.autoConvertEnabled = enabled;
     }
 
     /* =========================
@@ -57,24 +69,42 @@ public class TrapBoxManager {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
 
-                    boolean isWall =
-                            x == minX || x == maxX ||
-                            z == minZ || z == maxZ;
+                    boolean isWall = x == minX || x == maxX || z == minZ || z == maxZ;
+                    boolean isFloor = y == minY;
+                    boolean isCeiling = y == maxY;
 
-                    boolean isFloor = (y == minY);
-                    boolean isCeiling = (y == maxY);
-
-                    // 天井は生成しない
                     if (isCeiling) continue;
 
+                    Location loc = new Location(world, x, y, z);
+
                     if (isWall || isFloor) {
-                        Location loc = new Location(world, x, y, z);
+                        // 枠のブロックは保護
                         world.getBlockAt(loc).setType(material);
                         placedBlocks.add(loc);
                     }
                 }
             }
         }
+    }
+
+    /* =========================
+       自動変換用
+       ========================= */
+
+    public Material getAutoBlockType(int y) {
+        if (!hasTrapBox()) return Material.STONE;
+
+        int minY = trapBox.getCenter().getBlockY() - trapBox.getHalf() + 1; // 床の上
+        int maxY = trapBox.getCenter().getBlockY() + trapBox.getHalf();
+
+        int height = maxY - minY;
+        int relativeY = y - minY;
+
+        int layerHeight = height / 3;
+
+        if (relativeY >= 2 * layerHeight) return Material.DIAMOND_BLOCK;
+        else if (relativeY >= layerHeight) return Material.GOLD_BLOCK;
+        else return Material.IRON_BLOCK;
     }
 
     /* =========================
