@@ -6,26 +6,26 @@ import org.bukkit.World;
 
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 
 public class TrapBoxManager {
 
-    private Location center;
-    private int size;          // 一辺の長さ（9, 11, ...）
-    private int half;          // size / 2
+    private TrapBox trapBox;
     private Material material;
     private World world;
 
     private final Set<Location> placedBlocks = new HashSet<>();
-    private final Random random = new Random();
 
     /* =========================
-       状態チェック
+       状態
        ========================= */
 
     public boolean hasTrapBox() {
-        return center != null;
+        return trapBox != null;
+    }
+
+    public TrapBox getTrapBox() {
+        return trapBox;
     }
 
     /* =========================
@@ -37,15 +37,14 @@ public class TrapBoxManager {
             throw new IllegalStateException("TrapBox already exists");
         }
 
-        this.center = center.getBlock().getLocation();
-        this.size = size;
-        this.half = size / 2;
+        this.trapBox = new TrapBox(center, size);
         this.material = material;
         this.world = center.getWorld();
 
         int cx = center.getBlockX();
         int cy = center.getBlockY();
         int cz = center.getBlockZ();
+        int half = trapBox.getHalf();
 
         int minX = cx - half;
         int maxX = cx + half;
@@ -90,47 +89,27 @@ public class TrapBoxManager {
         }
 
         placedBlocks.clear();
-        center = null;
+        trapBox = null;
         world = null;
     }
 
     /* =========================
-       ブロック保護判定
+       保護判定
        ========================= */
 
     public boolean isProtected(Location location) {
         if (!hasTrapBox()) return false;
-
-        Location blockLoc = location.getBlock().getLocation();
-        return placedBlocks.contains(blockLoc);
+        return placedBlocks.contains(location.getBlock().getLocation());
     }
 
     /* =========================
-       TNT 用：内部ランダム座標
+       TNT 用
        ========================= */
 
     public Optional<Location> getRandomInnerLocation() {
-        if (!hasTrapBox()) return Optional.empty();
-
-        int cx = center.getBlockX();
-        int cy = center.getBlockY();
-        int cz = center.getBlockZ();
-
-        int minX = cx - half + 1;
-        int maxX = cx + half - 1;
-        int minY = cy - half + 1;
-        int maxY = cy + half - 1;
-        int minZ = cz - half + 1;
-        int maxZ = cz + half - 1;
-
-        int x = randomBetween(minX, maxX);
-        int y = randomBetween(minY, maxY);
-        int z = randomBetween(minZ, maxZ);
-
-        return Optional.of(new Location(world, x, y, z));
-    }
-
-    private int randomBetween(int min, int max) {
-        return min + random.nextInt(max - min + 1);
+        if (!hasTrapBox() || !trapBox.isActive()) {
+            return Optional.empty();
+        }
+        return Optional.of(trapBox.getRandomInnerLocation());
     }
 }
