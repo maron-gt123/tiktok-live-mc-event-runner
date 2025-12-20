@@ -28,6 +28,16 @@ public class WebhookController implements HttpHandler {
         String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         plugin.getLogger().info("Received webhook: " + body);
 
+        // ========================
+        // ゲーム未開始時は無効化
+        // ========================
+        if (plugin instanceof jp.example.mclivetrap.MCLiveTrapPlugin mtp && !mtp.isGameActive()) {
+            plugin.getLogger().info("Webhook received but game is not active yet: " + body);
+            exchange.sendResponseHeaders(200, 0);
+            exchange.getResponseBody().close();
+            return;
+        }
+
         try {
             JsonObject json = JsonParser.parseString(body).getAsJsonObject();
             String type = json.get("type").getAsString();
@@ -63,10 +73,7 @@ public class WebhookController implements HttpHandler {
                 String user = data.get("user").getAsString();
                 String giftName = data.get("gift_name").getAsString();
                 int count = data.get("count").getAsInt();
-
-                Bukkit.broadcastMessage(
-                    "§c[GIFT] §f" + user + " sent " + giftName + " x" + count
-                );
+                Bukkit.broadcastMessage("§c[GIFT] §f" + user + " sent " + giftName + " x" + count);
             }
             case "subscribe" -> {
                 String user = data.get("user").getAsString();
