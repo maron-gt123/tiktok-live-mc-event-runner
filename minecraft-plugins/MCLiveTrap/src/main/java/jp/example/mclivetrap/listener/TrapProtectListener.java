@@ -1,5 +1,6 @@
 package jp.example.mclivetrap.listener;
 
+import jp.example.mclivetrap.box.TrapBox;
 import jp.example.mclivetrap.box.TrapBoxManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,7 +16,10 @@ public class TrapProtectListener implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        if (manager.isProtected(event.getBlock().getLocation())) {
+        if (!manager.hasTrapBox()) return;
+
+        TrapBox box = manager.getTrapBox();
+        if (box.isInside(event.getBlock().getLocation())) {
             event.setCancelled(true);
         }
     }
