@@ -6,6 +6,7 @@ import jp.example.mclivetrap.http.HttpServerService;
 import jp.example.mclivetrap.listener.TNTExplodeListener;
 import jp.example.mclivetrap.listener.TrapProtectListener;
 import jp.example.mclivetrap.tnt.TNTAttackService;
+import jp.example.mclivetrap.listener.TrapBoxPlaceListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MCLiveTrapPlugin extends JavaPlugin {
@@ -28,6 +29,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new TNTExplodeListener(), this);
         getServer().getPluginManager().registerEvents(new TrapProtectListener(trapBoxManager), this);
+        getServer().getPluginManager().registerEvents(new TrapBoxPlaceListener(trapBoxManager), this);
 
         int port = getConfig().getInt("http.port", 4567);
         if (port <= 0) {
