@@ -65,6 +65,17 @@ public class TrapCommand implements CommandExecutor {
                 return true;
             }
 
+            case "autocvt" -> {
+                if (args.length < 2) {
+                    sender.sendMessage("§e/mclivetrap autocvt true|false");
+                    return true;
+                }
+                boolean enabled = args[1].equalsIgnoreCase("true");
+                manager.setAutoConvertEnabled(enabled);
+                sender.sendMessage("§aTrapBox内ブロック自動変換: " + (enabled ? "有効" : "無効"));
+                return true;
+            }
+
             default -> {
                 sendHelp(sender);
                 return true;
@@ -194,5 +205,7 @@ public class TrapCommand implements CommandExecutor {
         sender.sendMessage("§7  ゲーム開始（秒数省略可）");
         sender.sendMessage("§e/mclivetrap stop");
         sender.sendMessage("§7  ゲーム停止");
+        sender.sendMessage("§e/mclivetrap autocvt true|false");
+        sender.sendMessage("§7  TrapBox内ブロック自動変換の有効/無効切替");
     }
 }
