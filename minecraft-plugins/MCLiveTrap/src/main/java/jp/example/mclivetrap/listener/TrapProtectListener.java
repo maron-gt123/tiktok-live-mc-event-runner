@@ -18,8 +18,7 @@ public class TrapProtectListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         if (!manager.hasTrapBox()) return;
 
-        TrapBox box = manager.getTrapBox();
-        if (box.isInside(event.getBlock().getLocation())) {
+        if (manager.isProtected(event.getBlock().getLocation())) {
             event.setCancelled(true);
         }
     }
