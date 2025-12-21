@@ -14,3 +14,4 @@ public class TNTExplodeListener implements Listener {
             event.blockList().clear();
         }
     }
+}
