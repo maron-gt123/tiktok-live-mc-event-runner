@@ -25,4 +25,4 @@ jobs:
           context: .
           file: python/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tiktok-live-mc-event-runner:latest
+          tags: marongt123/tiktok-live-mc-event-runner:latest
