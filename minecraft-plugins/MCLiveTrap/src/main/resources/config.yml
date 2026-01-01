@@ -3,3 +3,4 @@ http:
 
 trap:
   block: GLASS
+  full-block: STONE
