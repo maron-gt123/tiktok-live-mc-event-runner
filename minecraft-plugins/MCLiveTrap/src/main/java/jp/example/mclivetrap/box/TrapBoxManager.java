@@ -78,7 +78,6 @@ public class TrapBoxManager {
                     Location loc = new Location(world, x, y, z);
 
                     if (isWall || isFloor) {
-                        // 枠のブロックは保護
                         world.getBlockAt(loc).setType(material);
                         placedBlocks.add(loc);
                     }
@@ -94,12 +93,11 @@ public class TrapBoxManager {
     public Material getAutoBlockType(int y) {
         if (!hasTrapBox()) return Material.STONE;
 
-        int minY = trapBox.getCenter().getBlockY() - trapBox.getHalf() + 1; // 床の上
+        int minY = trapBox.getCenter().getBlockY() - trapBox.getHalf() + 1;
         int maxY = trapBox.getCenter().getBlockY() + trapBox.getHalf();
 
         int height = maxY - minY;
         int relativeY = y - minY;
-
         int layerHeight = height / 3;
 
         if (relativeY >= 2 * layerHeight) return Material.DIAMOND_BLOCK;
@@ -108,8 +106,9 @@ public class TrapBoxManager {
     }
 
     /* =========================
-       TrapBox full
+       TrapBox fill
        ========================= */
+
     public void fillInsideWithAutoConvert() {
         if (!hasTrapBox()) return;
 
@@ -131,22 +130,38 @@ public class TrapBoxManager {
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
-
-                    Location loc = new Location(world, x, y, z);
                     Material mat = getAutoBlockType(y);
-                    world.getBlockAt(loc).setType(mat, false);
+                    world.getBlockAt(x, y, z).setType(mat, false);
                 }
             }
         }
     }
+
     /* =========================
        TrapBox clear
        ========================= */
-    public void clearTrapBox(TrapBox box) {
-        World world = box.getWorld();
-        for (int x = box.getMinX(); x <= box.getMaxX(); x++) {
-            for (int y = box.getMinY(); y <= box.getMaxY(); y++) {
-                for (int z = box.getMinZ(); z <= box.getMaxZ(); z++) {
+
+    public void clearInside() {
+        if (!hasTrapBox()) return;
+
+        Location center = trapBox.getCenter();
+        World world = center.getWorld();
+        int half = trapBox.getHalf();
+
+        int cx = center.getBlockX();
+        int cy = center.getBlockY();
+        int cz = center.getBlockZ();
+
+        int minX = cx - half + 1;
+        int maxX = cx + half - 1;
+        int minY = cy - half + 1;
+        int maxY = cy + half - 1;
+        int minZ = cz - half + 1;
+        int maxZ = cz + half - 1;
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
                     world.getBlockAt(x, y, z).setType(Material.AIR, false);
                 }
             }
