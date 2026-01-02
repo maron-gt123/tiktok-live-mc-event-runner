@@ -75,6 +75,17 @@ public class TrapCommand implements CommandExecutor {
                 sender.sendMessage("§aTrapBox内ブロック自動変換: " + (enabled ? "有効" : "無効"));
                 return true;
             }
+            case "fill" -> {
+                if (!manager.hasTrapBox()) {
+                    sender.sendMessage("§cTrapBoxが存在しません");
+                    return true;
+                }
+
+                manager.fillInsideWithAutoConvert();
+                sender.sendMessage("§aTrapBoxを自動変換ルールで埋めました");
+                return true;
+            }
+
 
             default -> {
                 sendHelp(sender);
@@ -199,6 +210,8 @@ public class TrapCommand implements CommandExecutor {
         sender.sendMessage("§6==== MCLiveTrap ====");
         sender.sendMessage("§e/mclivetrap create [size]");
         sender.sendMessage("§7  TrapBoxを生成（size省略時: 9）");
+        sender.sendMessage("§e/mclivetrap fill");
+        sender.sendMessage("§7 TrapBox内を自動変換ルールで埋める");
         sender.sendMessage("§e/mclivetrap remove");
         sender.sendMessage("§7  TrapBoxを削除");
         sender.sendMessage("§e/mclivetrap start [秒数]");
