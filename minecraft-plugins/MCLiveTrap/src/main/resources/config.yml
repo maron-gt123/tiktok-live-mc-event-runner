@@ -4,3 +4,103 @@ http:
 trap:
   block: GLASS
   full-block: STONE
+
+# ===============================================
+# MCLiveTrap イベントアクション設定
+# 外部イベント受信時に動作させたいものをここに定義
+# ===============================================
+
+events:
+
+  # -----------------------------------------------
+  # ギフトイベント
+  # ギフト名ごとにアクションを定義できます
+  #   enabled: false で無効化可能
+  # -----------------------------------------------
+  gift:
+    # 代表的ギフト名例
+    Rose:   # バラ
+      actions:
+        - type: tnt
+          amount: 1
+          enabled: true
+        - type: message
+          text: "§cThanks for the Rose!"
+          enabled: true
+
+    I_Love_You:   # 愛してるギフト
+      actions:
+        - type: tnt
+          amount: 3
+          enabled: true
+        - type: message
+          text: "§dHuge love gift!"
+          enabled: true
+
+    Sunglasses:
+      actions:
+        - type: zombie
+          amount: 5
+          enabled: true
+        - type: message
+          text: "§bCool shades incoming!"
+          enabled: true
+
+    TikTok_Universe:  # 豪華ギフト（例）
+      actions:
+        - type: tnt
+          amount: 8
+          enabled: true
+        - type: zombie
+          amount: 10
+          enabled: true
+        - type: message
+          text: "§6Epic Universe Gift!"
+          enabled: true
+
+  # -----------------------------------------------
+  # LIKE イベント
+  # threshold は一定数の like で発動トリガーに使える（任意）
+  # -----------------------------------------------
+  like:
+    threshold: 50
+    actions:
+      - type: zombie
+        amount: 1
+        enabled: true
+      - type: message
+        text: "§aLikes exploded!"
+        enabled: true
+
+  # -----------------------------------------------
+  # フォローイベント
+  # -----------------------------------------------
+  follow:
+    actions:
+      - type: tnt
+        amount: 2
+        enabled: true
+      - type: message
+        text: "§bNew follower hype!"
+        enabled: true
+
+  # -----------------------------------------------
+  # シェアイベント
+  # -----------------------------------------------
+  share:
+    actions:
+      - type: message
+        text: "§dThanks for sharing!"
+        enabled: true
+
+  # -----------------------------------------------
+  # サブスクイベント
+  # -----------------------------------------------
+  subscribe:
+    actions:
+      - type: tnt
+        amount: 2
+        enabled: true
+      - type: message
+        text: "§6Thanks for subscribing!"
+        enabled: true
