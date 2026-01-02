@@ -15,7 +15,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
     private TNTAttackService tntAttackService;
     private HttpServerService httpServerService;
 
-    private boolean gameActive = false;
+    private boolean gameActive = false; // ゲーム状態管理
 
     @Override
     public void onEnable() {
@@ -31,7 +31,6 @@ public class MCLiveTrapPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TrapProtectListener(trapBoxManager), this);
         getServer().getPluginManager().registerEvents(new TrapBoxPlaceListener(trapBoxManager), this);
 
-        // HTTP Server 起動
         httpServerService = new HttpServerService(this, trapBoxManager, tntAttackService);
         httpServerService.start();
 
