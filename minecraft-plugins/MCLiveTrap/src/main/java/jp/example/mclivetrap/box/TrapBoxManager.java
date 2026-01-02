@@ -225,7 +225,7 @@ public class TrapBoxManager {
     public void spawnZombies(int amount) {
         for (int i = 0; i < amount; i++) {
             for (TrapBox box : trapBoxes) {
-                Location loc = box.getLocation();
+                Location loc = box.getCenter();
                 World world = loc.getWorld();
                 if (world != null) {
                     world.spawn(loc, Zombie.class);
