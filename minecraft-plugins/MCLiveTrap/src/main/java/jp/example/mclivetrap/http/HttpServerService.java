@@ -1,7 +1,6 @@
 package jp.example.mclivetrap.http;
 
 import com.sun.net.httpserver.HttpServer;
-import jp.example.mclivetrap.MCLiveTrapPlugin;
 import jp.example.mclivetrap.box.TrapBoxManager;
 import jp.example.mclivetrap.tnt.TNTAttackService;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,9 +25,11 @@ public class HttpServerService {
     }
 
     public void start() {
-        int port = 8080; // デフォルト
-        if (plugin instanceof MCLiveTrapPlugin mtp) {
-            port = mtp.getConfig().getInt("http.port", 8080);
+        int port = plugin.getConfig().getInt("http.port", 4567);
+        if (port <= 0) {
+            plugin.getLogger().severe("Invalid http.port in config.yml");
+            plugin.getLogger().severe("HTTP server will NOT start");
+            return;
         }
 
         try {
@@ -46,9 +47,7 @@ public class HttpServerService {
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
 
-            plugin.getLogger().info(
-                    "HTTP server listening on 0.0.0.0:" + port + " (/event)"
-            );
+            plugin.getLogger().info("HTTP server listening on 0.0.0.0:" + port + " (/event)");
 
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to start HTTP server");
