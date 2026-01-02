@@ -12,8 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class WebhookController implements HttpHandler {
 
@@ -61,7 +60,6 @@ public class WebhookController implements HttpHandler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void handleEvent(String type, JsonObject data) {
         if (!(plugin instanceof MCLiveTrapPlugin mtp)) return;
 
@@ -70,48 +68,42 @@ public class WebhookController implements HttpHandler {
             case "like" -> Bukkit.broadcastMessage("§a[LIKE] §f" + data.get("user").getAsString());
             case "follow" -> Bukkit.broadcastMessage("§b[FOLLOW] §f" + data.get("user").getAsString());
             case "share" -> Bukkit.broadcastMessage("§d[SHARE] §f" + data.get("user").getAsString());
-            case "gift" -> {
-                String user = data.get("user").getAsString();
-                String giftName = data.get("gift_name").getAsString();
-                int count = data.get("count").getAsInt();
-                Bukkit.broadcastMessage("§c[GIFT] §f" + user + " sent " + giftName + " x" + count);
-            }
+            case "gift" -> Bukkit.broadcastMessage("§c[GIFT] §f" + data.get("user").getAsString() +
+                    " sent " + data.get("gift_name").getAsString() + " x" + data.get("count").getAsInt());
             case "subscribe" -> Bukkit.broadcastMessage("§6[SUBSCRIBE] §f" + data.get("user").getAsString());
             default -> plugin.getLogger().warning("Unknown event type: " + type);
         }
 
-        List<Map<String, Object>> actions = null;
-
+        // アクション処理
+        List<Map<String, Object>> actions = new ArrayList<>();
         try {
+            List<Map<?, ?>> rawActions;
             if ("gift".equalsIgnoreCase(type)) {
                 String giftName = data.get("gift_name").getAsString();
-                actions = (List<Map<String, Object>>) mtp.getConfig().getMapList("events.gift." + giftName + ".actions");
+                rawActions = mtp.getConfig().getMapList("events.gift." + giftName + ".actions");
             } else {
-                actions = (List<Map<String, Object>>) mtp.getConfig().getMapList("events." + type + ".actions");
+                rawActions = mtp.getConfig().getMapList("events." + type + ".actions");
+            }
+
+            for (Map<?, ?> m : rawActions) {
+                Map<String, Object> casted = new HashMap<>();
+                for (Map.Entry<?, ?> entry : m.entrySet()) {
+                    casted.put(String.valueOf(entry.getKey()), entry.getValue());
+                }
+                actions.add(casted);
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to read actions from config for type: " + type);
             e.printStackTrace();
         }
 
-        if (actions == null) return;
-
         for (Map<String, Object> a : actions) {
-            boolean enabled = Boolean.TRUE.equals(a.get("enabled"));
-            if (!enabled) continue;
+            if (!Boolean.TRUE.equals(a.get("enabled"))) continue;
 
             String actionType = (String) a.get("type");
             switch (actionType.toLowerCase()) {
-                case "tnt" -> {
-                    int tntAmount = ((Double) a.get("amount")).intValue();
-                    // TNTAttackService の spawnRandomTNT を使用
-                    tntService.spawnRandomTNT(tntAmount); 
-                }
-                case "zombie" -> {
-                    int zombieAmount = ((Double) a.get("amount")).intValue();
-                    // TrapBoxManager に spawnZombies を追加しておく必要あり
-                    trapBoxManager.spawnZombies(zombieAmount); 
-                }
+                case "tnt" -> tntService.spawnTNT(((Double) a.get("amount")).intValue());
+                case "zombie" -> trapBoxManager.spawnZombies(((Double) a.get("amount")).intValue());
                 case "message" -> Bukkit.broadcastMessage((String) a.get("text"));
                 default -> plugin.getLogger().warning("Unknown action type in config: " + actionType);
             }
