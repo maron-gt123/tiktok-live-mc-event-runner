@@ -37,9 +37,6 @@ public class WebhookController implements HttpHandler {
         String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         plugin.getLogger().info("Received webhook: " + body);
 
-        // ========================
-        // ゲーム未開始時は無効化
-        // ========================
         if (plugin instanceof MCLiveTrapPlugin mtp && !mtp.isGameActive()) {
             plugin.getLogger().info("Webhook received but game is not active yet: " + body);
             exchange.sendResponseHeaders(200, 0);
@@ -64,7 +61,11 @@ public class WebhookController implements HttpHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void handleEvent(String type, JsonObject data) {
+        if (!(plugin instanceof MCLiveTrapPlugin mtp)) return;
+
+        // 標準のメッセージ表示
         switch (type) {
             case "like" -> {
                 String user = data.get("user").getAsString();
@@ -91,16 +92,14 @@ public class WebhookController implements HttpHandler {
             default -> plugin.getLogger().warning("Unknown event type: " + type);
         }
 
-        if (!(plugin instanceof MCLiveTrapPlugin mtp)) return;
-
         List<Map<String, Object>> actions = null;
 
         try {
             if ("gift".equalsIgnoreCase(type)) {
                 String giftName = data.get("gift_name").getAsString();
-                actions = mtp.getConfig().getMapList("events.gift." + giftName + ".actions");
+                actions = (List<Map<String, Object>>) mtp.getConfig().getMapList("events.gift." + giftName + ".actions");
             } else {
-                actions = mtp.getConfig().getMapList("events." + type + ".actions");
+                actions = (List<Map<String, Object>>) mtp.getConfig().getMapList("events." + type + ".actions");
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to read actions from config for type: " + type);
@@ -117,11 +116,11 @@ public class WebhookController implements HttpHandler {
             switch (actionType.toLowerCase()) {
                 case "tnt" -> {
                     int tntAmount = ((Double) a.get("amount")).intValue();
-                    tntService.spawnTNT(tntAmount);
+                    tntService.attackWithTNT(tntAmount);
                 }
                 case "zombie" -> {
                     int zombieAmount = ((Double) a.get("amount")).intValue();
-                    trapBoxManager.spawnZombies(zombieAmount);
+                    trapBoxManager.spawnZombie(zombieAmount);
                 }
                 case "message" -> {
                     String text = (String) a.get("text");
