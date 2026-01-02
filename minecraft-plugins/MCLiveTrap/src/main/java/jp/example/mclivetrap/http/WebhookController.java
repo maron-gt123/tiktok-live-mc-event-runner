@@ -116,11 +116,11 @@ public class WebhookController implements HttpHandler {
             switch (actionType.toLowerCase()) {
                 case "tnt" -> {
                     int tntAmount = ((Double) a.get("amount")).intValue();
-                    tntService.attackWithTNT(tntAmount);
+                    tntService.spawnTNT(tntAmount);
                 }
                 case "zombie" -> {
                     int zombieAmount = ((Double) a.get("amount")).intValue();
-                    trapBoxManager.spawnZombie(zombieAmount);
+                    trapBoxManager.spawnZombies(zombieAmount);
                 }
                 case "message" -> {
                     String text = (String) a.get("text");
