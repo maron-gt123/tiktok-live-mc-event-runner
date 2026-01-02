@@ -37,7 +37,12 @@ public class MCLiveTrapPlugin extends JavaPlugin {
             getLogger().severe("HTTP server will NOT start");
         } else {
             getLogger().info("Starting HTTP server on port " + port);
-            httpServerService = new HttpServerService(this, port);
+            httpServerService = new HttpServerService(
+                    this,
+                    port,
+                    trapBoxManager,
+                    tntAttackService
+            );
             httpServerService.start();
         }
 
