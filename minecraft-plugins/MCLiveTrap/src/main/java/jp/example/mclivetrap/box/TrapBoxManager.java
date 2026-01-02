@@ -108,6 +108,39 @@ public class TrapBoxManager {
     }
 
     /* =========================
+       TrapBox full
+       ========================= */
+    public void fillInsideWithAutoConvert() {
+        if (!hasTrapBox()) return;
+
+        Location center = trapBox.getCenter();
+        World world = center.getWorld();
+        int half = trapBox.getHalf();
+
+        int cx = center.getBlockX();
+        int cy = center.getBlockY();
+        int cz = center.getBlockZ();
+
+        int minX = cx - half + 1;
+        int maxX = cx + half - 1;
+        int minY = cy - half + 1;
+        int maxY = cy + half - 1;
+        int minZ = cz - half + 1;
+        int maxZ = cz + half - 1;
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+
+                    Location loc = new Location(world, x, y, z);
+                    Material mat = getAutoBlockType(y);
+                    world.getBlockAt(loc).setType(mat, false);
+                }
+            }
+        }
+    }
+
+    /* =========================
        TrapBox 削除
        ========================= */
 
