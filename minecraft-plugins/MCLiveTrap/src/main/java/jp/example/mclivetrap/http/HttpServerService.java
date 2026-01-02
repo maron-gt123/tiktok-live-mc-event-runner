@@ -1,6 +1,7 @@
 package jp.example.mclivetrap.http;
 
 import com.sun.net.httpserver.HttpServer;
+import jp.example.mclivetrap.MCLiveTrapPlugin;
 import jp.example.mclivetrap.box.TrapBoxManager;
 import jp.example.mclivetrap.tnt.TNTAttackService;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -12,21 +13,24 @@ import java.util.concurrent.Executors;
 public class HttpServerService {
 
     private final JavaPlugin plugin;
-    private final int port;
     private final TrapBoxManager trapBoxManager;
     private final TNTAttackService tntService;
     private HttpServer server;
 
-    public HttpServerService(JavaPlugin plugin, int port,
+    public HttpServerService(JavaPlugin plugin,
                              TrapBoxManager trapBoxManager,
                              TNTAttackService tntService) {
         this.plugin = plugin;
-        this.port = port;
         this.trapBoxManager = trapBoxManager;
         this.tntService = tntService;
     }
 
     public void start() {
+        int port = 8080; // デフォルト
+        if (plugin instanceof MCLiveTrapPlugin mtp) {
+            port = mtp.getConfig().getInt("http.port", 8080);
+        }
+
         try {
             server = HttpServer.create(
                     new InetSocketAddress("0.0.0.0", port),
