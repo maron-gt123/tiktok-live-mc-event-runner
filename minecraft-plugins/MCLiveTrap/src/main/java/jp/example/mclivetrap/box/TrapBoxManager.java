@@ -139,6 +139,19 @@ public class TrapBoxManager {
             }
         }
     }
+    /* =========================
+       TrapBox clear
+       ========================= */
+    public void clearTrapBox(TrapBox box) {
+        World world = box.getWorld();
+        for (int x = box.getMinX(); x <= box.getMaxX(); x++) {
+            for (int y = box.getMinY(); y <= box.getMaxY(); y++) {
+                for (int z = box.getMinZ(); z <= box.getMaxZ(); z++) {
+                    world.getBlockAt(x, y, z).setType(Material.AIR, false);
+                }
+            }
+        }
+    }
 
     /* =========================
        TrapBox 削除
