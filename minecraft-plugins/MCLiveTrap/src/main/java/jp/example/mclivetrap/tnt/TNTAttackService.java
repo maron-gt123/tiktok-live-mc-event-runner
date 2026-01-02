@@ -15,7 +15,7 @@ public class TNTAttackService {
     }
 
     /**
-     * TrapBox 内のランダム位置に TNT を生成する
+     * TrapBox 内のランダム位置に TNT を生成する（Fuse指定）
      */
     public void spawnRandomTNT(int fuseTicks) {
         if (!trapBoxManager.hasTrapBox()) return;
@@ -25,30 +25,27 @@ public class TNTAttackService {
 
         Location loc = box.getRandomInnerLocation().add(0.5, 0, 0.5);
         World world = loc.getWorld();
+        if (world == null) return;
 
         TNTPrimed tnt = world.spawn(loc, TNTPrimed.class);
         tnt.setFuseTicks(fuseTicks);
         tnt.setYield(0.0F);
         tnt.setIsIncendiary(false);
     }
-}
-   /**
-     * TrapBox 内のランダム位置に spawnTNT を生成する
+
+    /**
+     * TrapBox 内のランダム位置に複数の TNT を生成する（デフォルトFuse 60ticks）
      */
-    private final TrapBoxManager trapBoxManager;
-
-    public TNTAttackService(TrapBoxManager trapBoxManager) {
-        this.trapBoxManager = trapBoxManager;
-    }
-
     public void spawnTNT(int amount) {
         for (int i = 0; i < amount; i++) {
-            for (var box : trapBoxManager.getTrapBoxes()) {
+            for (TrapBox box : trapBoxManager.getTrapBoxes()) {
                 Location loc = box.getLocation();
                 World world = loc.getWorld();
                 if (world != null) {
                     TNTPrimed tnt = world.spawn(loc, TNTPrimed.class);
-                    tnt.setFuseTicks(60); // 3秒
+                    tnt.setFuseTicks(60); // デフォルト3秒
+                    tnt.setYield(0.0F);
+                    tnt.setIsIncendiary(false);
                 }
             }
         }
