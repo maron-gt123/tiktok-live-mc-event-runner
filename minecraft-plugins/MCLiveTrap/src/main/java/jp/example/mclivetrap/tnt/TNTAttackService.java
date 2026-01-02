@@ -39,7 +39,7 @@ public class TNTAttackService {
     public void spawnTNT(int amount) {
         for (int i = 0; i < amount; i++) {
             for (TrapBox box : trapBoxManager.getTrapBoxes()) {
-                Location loc = box.getLocation();
+                Location loc = box.getCenter();
                 World world = loc.getWorld();
                 if (world != null) {
                     TNTPrimed tnt = world.spawn(loc, TNTPrimed.class);
