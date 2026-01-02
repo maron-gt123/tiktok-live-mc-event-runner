@@ -1,6 +1,8 @@
 package jp.example.mclivetrap.http;
 
 import com.sun.net.httpserver.HttpServer;
+import jp.example.mclivetrap.box.TrapBoxManager;
+import jp.example.mclivetrap.tnt.TNTAttackService;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -11,11 +13,17 @@ public class HttpServerService {
 
     private final JavaPlugin plugin;
     private final int port;
+    private final TrapBoxManager trapBoxManager;
+    private final TNTAttackService tntService;
     private HttpServer server;
 
-    public HttpServerService(JavaPlugin plugin, int port) {
+    public HttpServerService(JavaPlugin plugin, int port,
+                             TrapBoxManager trapBoxManager,
+                             TNTAttackService tntService) {
         this.plugin = plugin;
         this.port = port;
+        this.trapBoxManager = trapBoxManager;
+        this.tntService = tntService;
     }
 
     public void start() {
@@ -25,8 +33,11 @@ public class HttpServerService {
                     0
             );
 
-            // Python 側の POST 先
-            server.createContext("/event", new WebhookController(plugin));
+            server.createContext("/event", new WebhookController(
+                    plugin,
+                    trapBoxManager,
+                    tntService
+            ));
 
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
