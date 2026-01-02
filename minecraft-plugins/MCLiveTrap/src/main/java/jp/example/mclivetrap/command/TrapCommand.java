@@ -86,17 +86,17 @@ public class TrapCommand implements CommandExecutor {
                 return true;
             }
 
-            case "clear":
-                TrapBox box = trapBoxManager.getTrapBoxByOwner(player.getUniqueId());
-                if (box == null) {
-                    player.sendMessage("§cトラップが見つかりません");
-                    return true;
+           case "clear" -> {
+                if (!manager.hasTrapBox()) {
+                   sender.sendMessage("§cTrapBoxが存在しません");
+                   return true;
                 }
 
-                trapBoxManager.clearTrapBox(box);
-                player.sendMessage("§aトラップ内のブロックを削除しました");
+                manager.clearInside();
+                sender.sendMessage("§aTrapBox内のブロックを削除しました");
                 return true;
-                
+            }
+
             default -> {
                 sendHelp(sender);
                 return true;
