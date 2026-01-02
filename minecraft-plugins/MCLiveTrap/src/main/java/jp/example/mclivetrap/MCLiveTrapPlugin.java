@@ -15,7 +15,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
     private TNTAttackService tntAttackService;
     private HttpServerService httpServerService;
 
-    private boolean gameActive = false; // ← 追加
+    private boolean gameActive = false;
 
     @Override
     public void onEnable() {
@@ -31,20 +31,9 @@ public class MCLiveTrapPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TrapProtectListener(trapBoxManager), this);
         getServer().getPluginManager().registerEvents(new TrapBoxPlaceListener(trapBoxManager), this);
 
-        int port = getConfig().getInt("http.port", 4567);
-        if (port <= 0) {
-            getLogger().severe("Invalid http.port in config.yml");
-            getLogger().severe("HTTP server will NOT start");
-        } else {
-            getLogger().info("Starting HTTP server on port " + port);
-            httpServerService = new HttpServerService(
-                    this,
-                    port,
-                    trapBoxManager,
-                    tntAttackService
-            );
-            httpServerService.start();
-        }
+        // HTTP Server 起動
+        httpServerService = new HttpServerService(this, trapBoxManager, tntAttackService);
+        httpServerService.start();
 
         getLogger().info("MCLiveTrap enabled");
     }
@@ -65,9 +54,6 @@ public class MCLiveTrapPlugin extends JavaPlugin {
         return tntAttackService;
     }
 
-    // ==============================
-    // ゲーム状態管理
-    // ==============================
     public boolean isGameActive() {
         return gameActive;
     }
