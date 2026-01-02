@@ -86,7 +86,17 @@ public class TrapCommand implements CommandExecutor {
                 return true;
             }
 
+            case "clear":
+                TrapBox box = trapBoxManager.getTrapBoxByOwner(player.getUniqueId());
+                if (box == null) {
+                    player.sendMessage("§cトラップが見つかりません");
+                    return true;
+                }
 
+                trapBoxManager.clearTrapBox(box);
+                player.sendMessage("§aトラップ内のブロックを削除しました");
+                return true;
+                
             default -> {
                 sendHelp(sender);
                 return true;
@@ -208,17 +218,12 @@ public class TrapCommand implements CommandExecutor {
        ======================= */
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("§6==== MCLiveTrap ====");
-        sender.sendMessage("§e/mclivetrap create [size]");
-        sender.sendMessage("§7  TrapBoxを生成（size省略時: 9）");
-        sender.sendMessage("§e/mclivetrap fill");
-        sender.sendMessage("§7 TrapBox内を自動変換ルールで埋める");
-        sender.sendMessage("§e/mclivetrap remove");
-        sender.sendMessage("§7  TrapBoxを削除");
-        sender.sendMessage("§e/mclivetrap start [秒数]");
-        sender.sendMessage("§7  ゲーム開始（秒数省略可）");
-        sender.sendMessage("§e/mclivetrap stop");
-        sender.sendMessage("§7  ゲーム停止");
-        sender.sendMessage("§e/mclivetrap autocvt true|false");
-        sender.sendMessage("§7  TrapBox内ブロック自動変換の有効/無効切替");
+        sender.sendMessage("§e/mclivetrap create [size] §7- TrapBox生成");
+        sender.sendMessage("§e/mclivetrap fill        §7- TrapBoxを埋める");
+        sender.sendMessage("§e/mclivetrap clear       §7- TrapBoxを空にする");
+        sender.sendMessage("§e/mclivetrap remove      §7- TrapBox削除");
+        sender.sendMessage("§e/mclivetrap start [sec] §7- ゲーム開始");
+        sender.sendMessage("§e/mclivetrap stop        §7- ゲーム停止");
+        sender.sendMessage("§e/mclivetrap autocvt true | false §7- 自動変換切替");
     }
 }
