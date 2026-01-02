@@ -61,71 +61,59 @@ public class WebhookController implements HttpHandler {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private void handleEvent(String type, JsonObject data) {
         if (!(plugin instanceof MCLiveTrapPlugin mtp)) return;
 
-        // 標準のメッセージ表示
         switch (type) {
-            case "like" -> {
-                String user = data.get("user").getAsString();
-                Bukkit.broadcastMessage("§a[LIKE] §f" + user);
-            }
-            case "follow" -> {
-                String user = data.get("user").getAsString();
-                Bukkit.broadcastMessage("§b[FOLLOW] §f" + user);
-            }
-            case "share" -> {
-                String user = data.get("user").getAsString();
-                Bukkit.broadcastMessage("§d[SHARE] §f" + user);
-            }
+            case "like" -> Bukkit.broadcastMessage("§a[LIKE] §f" + data.get("user").getAsString());
+            case "follow" -> Bukkit.broadcastMessage("§b[FOLLOW] §f" + data.get("user").getAsString());
+            case "share" -> Bukkit.broadcastMessage("§d[SHARE] §f" + data.get("user").getAsString());
             case "gift" -> {
-                String user = data.get("user").getAsString();
-                String giftName = data.get("gift_name").getAsString();
-                int count = data.get("count").getAsInt();
-                Bukkit.broadcastMessage("§c[GIFT] §f" + user + " sent " + giftName + " x" + count);
+                Bukkit.broadcastMessage("§c[GIFT] §f" +
+                        data.get("user").getAsString() +
+                        " sent " +
+                        data.get("gift_name").getAsString() +
+                        " x" + data.get("count").getAsInt());
             }
-            case "subscribe" -> {
-                String user = data.get("user").getAsString();
-                Bukkit.broadcastMessage("§6[SUBSCRIBE] §f" + user);
-            }
+            case "subscribe" -> Bukkit.broadcastMessage("§6[SUBSCRIBE] §f" + data.get("user").getAsString());
             default -> plugin.getLogger().warning("Unknown event type: " + type);
         }
 
-        List<Map<String, Object>> actions = null;
+        // ===============================
+        // config の actions 実行
+        // ===============================
+        List<Map<?, ?>> actions;
 
         try {
             if ("gift".equalsIgnoreCase(type)) {
                 String giftName = data.get("gift_name").getAsString();
-                actions = (List<Map<String, Object>>) mtp.getConfig().getMapList("events.gift." + giftName + ".actions");
+                actions = mtp.getConfig().getMapList("events.gift." + giftName + ".actions");
             } else {
-                actions = (List<Map<String, Object>>) mtp.getConfig().getMapList("events." + type + ".actions");
+                actions = mtp.getConfig().getMapList("events." + type + ".actions");
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to read actions from config for type: " + type);
             e.printStackTrace();
+            return;
         }
 
         if (actions == null) return;
 
-        for (Map<String, Object> a : actions) {
+        for (Map<?, ?> a : actions) {
             boolean enabled = Boolean.TRUE.equals(a.get("enabled"));
             if (!enabled) continue;
 
-            String actionType = (String) a.get("type");
+            String actionType = String.valueOf(a.get("type"));
             switch (actionType.toLowerCase()) {
                 case "tnt" -> {
-                    int tntAmount = ((Double) a.get("amount")).intValue();
-                    tntService.spawnTNT(tntAmount);
+                    int tntAmount = ((Number) a.get("amount")).intValue();
+                    tntService.attackWithTNT(tntAmount);
                 }
                 case "zombie" -> {
-                    int zombieAmount = ((Double) a.get("amount")).intValue();
-                    trapBoxManager.spawnZombies(zombieAmount);
+                    int zombieAmount = ((Number) a.get("amount")).intValue();
+                    trapBoxManager.spawnZombie(zombieAmount);
                 }
-                case "message" -> {
-                    String text = (String) a.get("text");
-                    Bukkit.broadcastMessage(text);
-                }
+                case "message" -> Bukkit.broadcastMessage(String.valueOf(a.get("text")));
                 default -> plugin.getLogger().warning("Unknown action type in config: " + actionType);
             }
         }
