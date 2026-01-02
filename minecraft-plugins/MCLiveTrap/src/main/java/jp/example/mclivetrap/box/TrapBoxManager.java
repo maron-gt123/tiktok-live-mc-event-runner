@@ -6,8 +6,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Zombie;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,6 +22,9 @@ public class TrapBoxManager {
 
     // 枠のブロック（保護対象）
     private final Set<Location> placedBlocks = new HashSet<>();
+
+    // Zombies 用
+    private final List<TrapBox> trapBoxes = new ArrayList<>();
 
     /* =========================
        状態
@@ -206,12 +209,10 @@ public class TrapBoxManager {
         }
         return Optional.of(trapBox.getRandomInnerLocation());
     }
-}
+
     /* =========================
        Zombies 用
        ========================= */
-
-    private final List<TrapBox> trapBoxes = new ArrayList<>();
 
     public void addTrapBox(TrapBox box) {
         trapBoxes.add(box);
