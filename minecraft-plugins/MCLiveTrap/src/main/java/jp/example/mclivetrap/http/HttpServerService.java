@@ -15,40 +15,22 @@ public class HttpServerService {
     private final TrapBoxManager trapBoxManager;
     private final TNTAttackService tntService;
     private HttpServer server;
+    private final int port;
 
-    public HttpServerService(JavaPlugin plugin,
-                             TrapBoxManager trapBoxManager,
-                             TNTAttackService tntService) {
+    public HttpServerService(JavaPlugin plugin, TrapBoxManager trapBoxManager, TNTAttackService tntService) {
         this.plugin = plugin;
         this.trapBoxManager = trapBoxManager;
         this.tntService = tntService;
+        this.port = plugin.getConfig().getInt("http.port", 4567);
     }
 
     public void start() {
-        int port = plugin.getConfig().getInt("http.port", 4567);
-        if (port <= 0) {
-            plugin.getLogger().severe("Invalid http.port in config.yml");
-            plugin.getLogger().severe("HTTP server will NOT start");
-            return;
-        }
-
         try {
-            server = HttpServer.create(
-                    new InetSocketAddress("0.0.0.0", port),
-                    0
-            );
-
-            server.createContext("/event", new WebhookController(
-                    plugin,
-                    trapBoxManager,
-                    tntService
-            ));
-
+            server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
+            server.createContext("/event", new WebhookController(plugin, trapBoxManager, tntService));
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
-
             plugin.getLogger().info("HTTP server listening on 0.0.0.0:" + port + " (/event)");
-
         } catch (IOException e) {
             plugin.getLogger().severe("Failed to start HTTP server");
             e.printStackTrace();
