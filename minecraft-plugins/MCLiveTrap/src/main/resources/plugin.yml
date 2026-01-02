@@ -8,4 +8,4 @@ description: Phase1 HTTP webhook receiver for TikTok events
 commands:
   mclivetrap:
     description: Create a trap box
-    usage: /mclivetrap
+    usage: /mclivetrap  <create|clear|remove|list>
