@@ -32,3 +32,25 @@ public class TNTAttackService {
         tnt.setIsIncendiary(false);
     }
 }
+   /**
+     * TrapBox 内のランダム位置に spawnTNT を生成する
+     */
+    private final TrapBoxManager trapBoxManager;
+
+    public TNTAttackService(TrapBoxManager trapBoxManager) {
+        this.trapBoxManager = trapBoxManager;
+    }
+
+    public void spawnTNT(int amount) {
+        for (int i = 0; i < amount; i++) {
+            for (var box : trapBoxManager.getTrapBoxes()) {
+                Location loc = box.getLocation();
+                World world = loc.getWorld();
+                if (world != null) {
+                    TNTPrimed tnt = world.spawn(loc, TNTPrimed.class);
+                    tnt.setFuseTicks(60); // 3秒
+                }
+            }
+        }
+    }
+}
