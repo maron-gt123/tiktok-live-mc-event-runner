@@ -4,18 +4,27 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import jp.example.mclivetrap.MCLiveTrapPlugin;
+import jp.example.mclivetrap.box.TrapBoxManager;
+import jp.example.mclivetrap.tnt.TNTAttackService;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
 
 public class WebhookController implements HttpHandler {
 
     private final JavaPlugin plugin;
+    private final TrapBoxManager trapBoxManager;
+    private final TNTAttackService tntService;
 
-    public WebhookController(JavaPlugin plugin) {
+    public WebhookController(JavaPlugin plugin, TrapBoxManager trapBoxManager, TNTAttackService tntService) {
         this.plugin = plugin;
+        this.trapBoxManager = trapBoxManager;
+        this.tntService = tntService;
     }
 
     @Override
@@ -31,7 +40,7 @@ public class WebhookController implements HttpHandler {
         // ========================
         // ゲーム未開始時は無効化
         // ========================
-        if (plugin instanceof jp.example.mclivetrap.MCLiveTrapPlugin mtp && !mtp.isGameActive()) {
+        if (plugin instanceof MCLiveTrapPlugin mtp && !mtp.isGameActive()) {
             plugin.getLogger().info("Webhook received but game is not active yet: " + body);
             exchange.sendResponseHeaders(200, 0);
             exchange.getResponseBody().close();
@@ -80,6 +89,46 @@ public class WebhookController implements HttpHandler {
                 Bukkit.broadcastMessage("§6[SUBSCRIBE] §f" + user);
             }
             default -> plugin.getLogger().warning("Unknown event type: " + type);
+        }
+
+        if (!(plugin instanceof MCLiveTrapPlugin mtp)) return;
+
+        List<Map<String, Object>> actions = null;
+
+        try {
+            if ("gift".equalsIgnoreCase(type)) {
+                String giftName = data.get("gift_name").getAsString();
+                actions = mtp.getConfig().getMapList("events.gift." + giftName + ".actions");
+            } else {
+                actions = mtp.getConfig().getMapList("events." + type + ".actions");
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to read actions from config for type: " + type);
+            e.printStackTrace();
+        }
+
+        if (actions == null) return;
+
+        for (Map<String, Object> a : actions) {
+            boolean enabled = Boolean.TRUE.equals(a.get("enabled"));
+            if (!enabled) continue;
+
+            String actionType = (String) a.get("type");
+            switch (actionType.toLowerCase()) {
+                case "tnt" -> {
+                    int tntAmount = ((Double) a.get("amount")).intValue();
+                    tntService.spawnTNT(tntAmount);
+                }
+                case "zombie" -> {
+                    int zombieAmount = ((Double) a.get("amount")).intValue();
+                    trapBoxManager.spawnZombies(zombieAmount);
+                }
+                case "message" -> {
+                    String text = (String) a.get("text");
+                    Bukkit.broadcastMessage(text);
+                }
+                default -> plugin.getLogger().warning("Unknown action type in config: " + actionType);
+            }
         }
     }
 }
