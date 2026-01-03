@@ -5,12 +5,10 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# requirements
-COPY python/app/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# アプリ本体
-COPY python/app/app/ ./app/
-COPY python/app/config.yaml ./config/
+COPY app/ ./app/
+COPY app/config/ ./config/
 
 CMD ["python", "app/wrapper.py"]
