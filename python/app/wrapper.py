@@ -13,9 +13,9 @@ with open(CONFIG_PATH, "r", encoding="utf-8") as f:
 
 mode = config.get("mode", "production")
 
-if mode == "dummy":
-    print("Starting dummy mode...")
-    dummy_main.run_dummy(config)  # config は dummy_main のみ使用
+if mode == "production":
+    from . import main
+    main.run()
 else:
-    print("Starting production mode...")
-    asyncio.run(main.run_production())  # main.py は既存のまま
+    from . import dummy_main
+    dummy_main.run()
