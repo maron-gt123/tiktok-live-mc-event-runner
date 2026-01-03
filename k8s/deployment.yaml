@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: tiktok-live
-          image: marongt123/tiktok-live-mc-event-runner:latest
+          image: marongt123/tiktok-live-mc-event-runner:production
           imagePullPolicy: Always
           volumeMounts:
             - name: access-config
