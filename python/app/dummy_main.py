@@ -43,7 +43,7 @@ def send_to_targets(event_type: str, data: dict):
             print(f"[SEND ERROR] {ep['name']}:", e)
 
 # =====================
-# ダミーイベント定義
+# ダミーイベント定義（本番フォーマットに合わせる）
 # =====================
 dummy_events = [
     ("gift", {
@@ -67,10 +67,12 @@ dummy_events = [
     }),
     ("like", {
         "user": "Dave",
-        "count": 3,  # いいねの数はランダムに変化させる
     }),
     ("follow", {
         "user": "Eve",
+    }),
+    ("subscribe", {
+        "user": "Frank",
     }),
 ]
 
@@ -82,9 +84,14 @@ if __name__ == "__main__":
         print("\n=== DEBUG SIMULATOR START ===")
         while True:
             for event_type, data in dummy_events:
-                # いいねのcountだけランダムに変化
+                # likeイベントは本番同様にcountを設定
                 if event_type == "like":
                     data["count"] = random.randint(1, 5)
+
+                # giftのrepeat_endもランダムで変化させる
+                if event_type == "gift":
+                    data["repeat_end"] = random.choice([True, False])
+
                 send_to_targets(event_type, data)
                 time.sleep(1)  # 本番っぽく1秒待機
     except KeyboardInterrupt:
