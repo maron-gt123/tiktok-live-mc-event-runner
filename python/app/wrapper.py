@@ -3,10 +3,13 @@ from pathlib import Path
 from . import main, dummy_main
 import yaml
 
-# wrapper.py の場所を基準に config.yaml を取得
-config_path = Path(__file__).parent / "config" / "config.yaml"
-with open(config_path, "r", encoding="utf-8") as f:
+# =====================
+# config.yaml 読み込み
+# =====================
+CONFIG_PATH = Path(__file__).parent / "config" / "config.yaml"
+with open(CONFIG_PATH, "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
+
 
 mode = config.get("mode", "production")
 
