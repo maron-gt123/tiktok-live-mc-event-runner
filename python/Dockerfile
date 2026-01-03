@@ -12,5 +12,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/*.py ./
 COPY app/config ./config/
 
-# CMD で main.py を直接起動
-CMD ["python", "-u", "main.py"]
+# CMD で wrapper.py を直接起動
+CMD ["python", "-u", "wrapper.py"]
