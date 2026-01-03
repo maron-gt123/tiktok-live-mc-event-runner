@@ -2,6 +2,7 @@ import time
 import traceback
 import requests
 import yaml
+import os
 
 from TikTokLive import TikTokLiveClient
 from TikTokLive.events import (
@@ -13,10 +14,14 @@ from TikTokLive.events import (
 )
 from TikTokLive.client.errors import UserOfflineError
 
+
+# 現在のファイル(main.py)のディレクトリ
+BASE_DIR = os.path.dirname(__file__)
+CONFIG_PATH = os.path.join(BASE_DIR, "config", "config.yaml")
 # =====================
 # config.yaml 読み込み
 # =====================
-with open("config.yaml", "r", encoding="utf-8") as f:
+with open(CONFIG_PATH, "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
 TIKTOK_USER = config["tiktok"]["user"]
