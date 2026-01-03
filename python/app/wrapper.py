@@ -3,19 +3,16 @@ from pathlib import Path
 from . import main, dummy_main
 import yaml
 
-# =====================
-# config.yaml 読み込み
-# =====================
+
 CONFIG_PATH = Path(__file__).parent / "config" / "config.yaml"
 with open(CONFIG_PATH, "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
+mode = config.get("mode", "production").lower()
 
-mode = config.get("mode", "production")
-
-if mode == "production":
-    from . import main
-    main.run()
+if mode == "dummy":
+    print("[WRAPPER] Mode is dummy. Running dummy_main...")
+    dummy_main.run_dummy()
 else:
-    from . import dummy_main
-    dummy_main.run()
+    print("[WRAPPER] Mode is production. Running main...")
+    asyncio.run(main.run_production())
