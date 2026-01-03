@@ -18,7 +18,7 @@ spec:
           imagePullPolicy: Always
           volumeMounts:
             - name: access-config
-              mountPath: /app/config.yaml
+              mountPath: /app/config/config.yaml
               subPath: access-config.yaml
       volumes:
         - name: access-config
