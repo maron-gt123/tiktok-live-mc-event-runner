@@ -11,5 +11,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 COPY app/config/config.yaml ./config/config.yaml
 
-# 起動は wrapper.py に任せる
-CMD ["python", "app/wrapper.py"]
+CMD ["python", "-m", "app.wrapper"]
