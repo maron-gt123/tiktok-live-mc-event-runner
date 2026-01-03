@@ -1,12 +1,15 @@
 import json
 import time
 import websocket
+import yaml
 
-# === 設定 ===
-WS_URL = "ws://127.0.0.1:12345"
-USER_ID = "dummy_user"
-USER_NICK = "DummyMC"
-# ============
+# === config.yaml 読み込み ===
+with open("config/config.yaml", "r", encoding="utf-8") as f:
+    config = yaml.safe_load(f)
+
+WS_URL = config.get("ws_url", "ws://127.0.0.1:12345")
+USER_ID = config.get("user_id", "dummy_user")
+USER_NICK = config.get("user_nick", "DummyMC")
 
 # === ダミーイベント作成関数 ===
 def create_dummy_event(event_type, **kwargs):
@@ -26,7 +29,7 @@ def create_dummy_event(event_type, **kwargs):
 def run_dummy():
     ws = websocket.WebSocket()
     ws.connect(WS_URL)
-    print("Dummy mode connected to WebSocket")
+    print(f"Dummy mode connected to WebSocket: {WS_URL}")
 
     try:
         while True:
