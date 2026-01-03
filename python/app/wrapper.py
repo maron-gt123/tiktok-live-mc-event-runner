@@ -1,6 +1,6 @@
 import yaml
 import asyncio
-from app import main, dummy_main
+from . import main, dummy_main
 
 # config.yaml を読み込む
 with open("config/config.yaml", "r", encoding="utf-8") as f:
