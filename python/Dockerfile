@@ -8,8 +8,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY python/requirements.txt .
-COPY python/app/ ./app/
+COPY app/ ./app/
 COPY app/config/config.yaml ./config/config.yaml
 
+# 起動は wrapper.py に任せる
 CMD ["python", "app/wrapper.py"]
