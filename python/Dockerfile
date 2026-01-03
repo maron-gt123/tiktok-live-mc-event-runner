@@ -8,7 +8,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app/ ./app/
-COPY app/config/ ./config/
+COPY python/requirements.txt .
+COPY python/app/ ./app/
+COPY python/app/config/ ./config/
 
 CMD ["python", "app/wrapper.py"]
