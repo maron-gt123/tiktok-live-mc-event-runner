@@ -1,11 +1,16 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY requirements.txt .
+# requirements
+COPY python/app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app/ ./app/
-COPY config/ ./config/
+# アプリ本体
+COPY python/app/app/ ./app/
+COPY python/app/config.yaml ./config/
 
 CMD ["python", "app/wrapper.py"]
