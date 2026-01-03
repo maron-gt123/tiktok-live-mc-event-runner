@@ -6,6 +6,7 @@ import websocket
 WS_URL = "ws://127.0.0.1:12345"
 USER_ID = "dummy_user"
 USER_NICK = "DummyMC"
+# ============
 
 # === ダミーイベント作成関数 ===
 def create_dummy_event(event_type, **kwargs):
