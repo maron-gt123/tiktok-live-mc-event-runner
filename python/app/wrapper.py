@@ -1,11 +1,12 @@
 import os
-import subprocess
+from app import main, dummy_main
 
-mode = os.environ.get("MODE", "production") 
+mode = os.environ.get("MODE", "production")
 
 if mode == "dummy":
     print("Starting dummy mode...")
-    subprocess.run(["python", "dummy_main.py"])
+    dummy_main.run_dummy()
 else:
     print("Starting production mode...")
-    subprocess.run(["python", "main.py"])
+    import asyncio
+    asyncio.run(main.run_production())
