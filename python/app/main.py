@@ -2,6 +2,7 @@ import time
 import traceback
 import requests
 import yaml
+import asyncio
 
 from TikTokLive import TikTokLiveClient
 from TikTokLive.events import (
@@ -14,12 +15,11 @@ from TikTokLive.events import (
 from TikTokLive.client.errors import UserOfflineError
 from pathlib import Path
 
-# =====================
-# config.yaml 読み込み
-# =====================
-CONFIG_PATH = Path(__file__).parent / "config" / "config.yaml"
-with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-    config = yaml.safe_load(f)
+async def run_production():
+    # config.yaml を読み込む（dummy_main.py と同じ方法）
+    CONFIG_PATH = Path(__file__).parent / "config" / "config.yaml"
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        config = yaml.safe_load(f)
 
 TIKTOK_USER = config["tiktok"]["user"]
 ENDPOINTS = config["sender"]["endpoints"]
