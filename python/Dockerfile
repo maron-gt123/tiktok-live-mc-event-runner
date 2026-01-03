@@ -6,8 +6,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# アプリ本体コピー
-COPY app/ ./app/
+# Python ファイルを /app に直接コピー
+COPY app/*.py ./
 
-ENV MODE=dummy
-CMD ["python", "-m", "app.wrapper"]
+# Config を /app/config にコピー
+COPY app/config ./config
+
+# 実行
+CMD ["python", "-m", "wrapper"]
