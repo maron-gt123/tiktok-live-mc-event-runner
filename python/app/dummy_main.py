@@ -1,89 +1,97 @@
 import time
-import json
 import requests
+import traceback
 import yaml
-from pathlib import Path
+import random
 
-CONFIG_PATH = Path("/app/config/config.yaml")
-with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+# =====================
+# 設定読み込み
+# =====================
+CONFIG_FILE = "config/config.yaml"  # ルート直下ではなく config/ 配下
+HTTP_TIMEOUT = 2  # デフォルトタイムアウト（秒）
+
+with open(CONFIG_FILE, "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
-http_timeout = config.get("http", {}).get("timeout", 2)
-USER_ID = config.get("tiktok", {}).get("user", "dummy_user")
-USER_NICK = "DummyMC"
-endpoints = config.get("sender", {}).get("endpoints", [])
+# 今回はユーザー名はダミーなので無視
+ENDPOINTS = config.get("sender", {}).get("endpoints", [])
 
-print("[DUMMY] Loaded endpoints:")
-for ep in endpoints:
-    print(f" - {ep['name']}: {ep['url']}")
+if not ENDPOINTS:
+    raise RuntimeError("sender.endpoints is not set in config.yaml")
 
-def send_event(evt):
-    for ep in endpoints:
+print("Send Targets:")
+for ep in ENDPOINTS:
+    print(" -", ep.get("name"), "=>", ep.get("url"))
+
+# =====================
+# HTTP送信関数
+# =====================
+def send_to_targets(event_type: str, data: dict):
+    payload = {
+        "type": event_type,
+        "timestamp": int(time.time()),
+        "data": data,
+    }
+
+    for ep in ENDPOINTS:
         try:
-            res = requests.post(ep["url"], json=evt, timeout=http_timeout)
-            res.raise_for_status()
-            print(f"[DUMMY] Sent {evt['type']} to {ep['name']}")
+            print(f"[SEND] {event_type} -> {ep['name']}")
+            response = requests.post(
+                ep["url"],
+                json=payload,
+                timeout=HTTP_TIMEOUT,
+            )
+            print(" status:", response.status_code)
         except Exception as e:
-            print(f"[DUMMY] Failed {evt['type']} to {ep['name']}: {e}")
+            print(f"[SEND ERROR] {ep['name']}:", e)
 
-def run_dummy():
-    print(f"[DUMMY] Running dummy events as {USER_ID} ({USER_NICK})")
+# =====================
+# ダミーイベント定義
+# =====================
+dummy_events = [
+    ("gift", {
+        "user": "Alice",
+        "gift_id": 1,
+        "gift_name": "Rose",
+        "diamond": 5,
+        "count": 1,
+        "repeat_end": True,
+    }),
+    ("gift", {
+        "user": "Bob",
+        "gift_id": 2,
+        "gift_name": "GG",
+        "diamond": 10,
+        "count": 1,
+        "repeat_end": True,
+    }),
+    ("share", {
+        "user": "Charlie",
+    }),
+    ("like", {
+        "user": "Dave",
+        "count": 3,  # いいねの数はランダムに変化させる
+    }),
+    ("follow", {
+        "user": "Eve",
+    }),
+]
+
+# =====================
+# メインループ
+# =====================
+if __name__ == "__main__":
     try:
+        print("\n=== DEBUG SIMULATOR START ===")
         while True:
-            # LIKE x10
-            for _ in range(10):
-                evt = {
-                    "type": "like",
-                    "user_unique_id": USER_ID,
-                    "user_nickname": USER_NICK,
-                    "timestamp": int(time.time()),
-                    "count": 1
-                }
-                send_event(evt)
-                time.sleep(0.2)
-
-            # GIFT
-            evt = {
-                "type": "gift",
-                "user_unique_id": USER_ID,
-                "user_nickname": USER_NICK,
-                "timestamp": int(time.time()),
-                "gift_name": "rose",
-                "gift_amount": 1
-            }
-            send_event(evt)
-            time.sleep(0.2)
-
-            # COMMENT
-            evt = {
-                "type": "comment",
-                "user_unique_id": USER_ID,
-                "user_nickname": USER_NICK,
-                "timestamp": int(time.time()),
-                "comment": "gg"
-            }
-            send_event(evt)
-            time.sleep(0.2)
-
-            # FOLLOW
-            evt = {
-                "type": "follow",
-                "user_unique_id": USER_ID,
-                "user_nickname": USER_NICK,
-                "timestamp": int(time.time())
-            }
-            send_event(evt)
-            time.sleep(0.2)
-
-            # SHARE
-            evt = {
-                "type": "share",
-                "user_unique_id": USER_ID,
-                "user_nickname": USER_NICK,
-                "timestamp": int(time.time())
-            }
-            send_event(evt)
-            time.sleep(0.2)
-
+            for event_type, data in dummy_events:
+                # いいねのcountだけランダムに変化
+                if event_type == "like":
+                    data["count"] = random.randint(1, 5)
+                send_to_targets(event_type, data)
+                time.sleep(1)  # 本番っぽく1秒待機
     except KeyboardInterrupt:
-        print("[DUMMY] Stopped by user")
+        print("\nExit requested by user.")
+    except Exception:
+        print("Unexpected error:")
+        traceback.print_exc()
