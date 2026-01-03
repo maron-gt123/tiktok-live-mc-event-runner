@@ -7,14 +7,11 @@ import random
 # =====================
 # 設定読み込み
 # =====================
-CONFIG_FILE = "config/config.yaml"  # ルート直下ではなく config/ 配下
-HTTP_TIMEOUT = 2  # デフォルトタイムアウト（秒）
-
-with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+with open("config/config.yaml", "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
-# 今回はユーザー名はダミーなので無視
 ENDPOINTS = config.get("sender", {}).get("endpoints", [])
+HTTP_TIMEOUT = config.get("http", {}).get("timeout", 2)
 
 if not ENDPOINTS:
     raise RuntimeError("sender.endpoints is not set in config.yaml")
