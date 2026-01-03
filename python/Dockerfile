@@ -6,7 +6,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY *.py ./
-COPY config ./config
+COPY config/ ./config/
 
 # 直接 main.py を起動
 CMD ["python", "-u", "main.py"]
