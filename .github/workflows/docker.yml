@@ -23,14 +23,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./python
-          file: python/Dockerfile.production
+          file: python/Dockerfile
           push: true
-          tags: marongt123/tiktok-live-mc-event-runner:production
-
-      - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./python
-          file: python/Dockerfile.dummy
-          push: true
-          tags: marongt123/tiktok-live-mc-event-runner:dummy
+          tags: marongt123/tiktok-live-mc-event-runner:latest
