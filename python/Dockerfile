@@ -1,12 +1,16 @@
+# python:3.12-slim をベース
 FROM python:3.12-slim
 
+# 作業ディレクトリ
 WORKDIR /app
 
+# 依存関係インストール
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app/ ./   # app 内をすべて /app にコピー
-COPY config/ ./config/
+# Python ファイルと config ディレクトリを /app に丸ごとコピー
+COPY app/*.py ./
+COPY app/config ./config/
 
-# 直接 main.py を起動
+# CMD で main.py を直接起動
 CMD ["python", "-u", "main.py"]
