@@ -12,11 +12,13 @@ from TikTokLive.events import (
     SubscribeEvent,
 )
 from TikTokLive.client.errors import UserOfflineError
+from pathlib import Path
 
 # =====================
 # config.yaml 読み込み
 # =====================
-with open("config/config.yaml", "r", encoding="utf-8") as f:
+CONFIG_PATH = Path(__file__).parent / "config" / "config.yaml"
+with open(CONFIG_PATH, "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
 TIKTOK_USER = config["tiktok"]["user"]
