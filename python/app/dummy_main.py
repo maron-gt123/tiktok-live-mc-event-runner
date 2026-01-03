@@ -1,15 +1,23 @@
 import json
 import time
 import websocket
+import yaml
 
-def run_dummy(config):
+from pathlib import Path
+
+def run_dummy():
+    # config.yaml を読み込む（全ファイル共通の読み方）
+    CONFIG_PATH = Path(__file__).parent / "config" / "config.yaml"
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+        config = yaml.safe_load(f)
+
     WS_URL = config.get("ws_url", "ws://127.0.0.1:12345")
     USER_ID = "dummy_user"
     USER_NICK = "DummyMC"
 
+    print(f"[DUMMY] Connecting to WebSocket {WS_URL} as {USER_ID} ({USER_NICK})")
     ws = websocket.WebSocket()
     ws.connect(WS_URL)
-    print("Dummy mode connected to WebSocket")
 
     try:
         while True:
