@@ -10,6 +10,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY python/requirements.txt .
 COPY python/app/ ./app/
-COPY python/app/config/ ./config/
+COPY app/config/config.yaml ./config/config.yaml
 
 CMD ["python", "app/wrapper.py"]
