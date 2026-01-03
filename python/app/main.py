@@ -1,10 +1,7 @@
-# python/app/main.py
-
 import time
 import traceback
 import requests
 import yaml
-import asyncio
 from pathlib import Path
 
 from TikTokLive import TikTokLiveClient
@@ -40,15 +37,15 @@ def send_to_targets(event_type: str, data: dict, endpoints, http_timeout):
 
 
 # =====================
-# 本体
+# main 用ラッパー
 # =====================
-async def run_production():
-    # config.yaml を読み込む（wrapper/dummy と同じ方法）
-    CONFIG_PATH = Path(__file__).parent / "config" / "config.yaml"
+def run_main():
+    print("[MAIN] Starting production mode...")
+
+    CONFIG_PATH = Path("/app/config/config.yaml")
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
-    # 設定
     TIKTOK_USER = config["tiktok"]["user"]
     ENDPOINTS = config["sender"]["endpoints"]
     HTTP_TIMEOUT = config.get("http", {}).get("timeout", 2)
@@ -56,18 +53,14 @@ async def run_production():
     if not TIKTOK_USER:
         raise RuntimeError("tiktok.user is not set in config.yaml")
 
-    print("TikTok User:", TIKTOK_USER)
-    print("Send Targets:")
+    print("[MAIN] TikTok User:", TIKTOK_USER)
+    print("[MAIN] Send Targets:")
     for ep in ENDPOINTS:
         print(" -", ep["name"], "=>", ep["url"])
 
-    # =====================
-    # メインループ（再接続対応）
-    # =====================
     while True:
         try:
             print("\n=== CONNECTING TO TIKTOK LIVE ===")
-
             client = TikTokLiveClient(unique_id=TIKTOK_USER)
 
             # =====================
@@ -76,14 +69,7 @@ async def run_production():
             @client.on(GiftEvent)
             async def on_gift(event: GiftEvent):
                 try:
-                    print("[GIFT]")
-                    print(" user:", event.user.unique_id)
-                    print(" gift_id:", event.gift.id)
-                    print(" name:", event.gift.name)
-                    print(" diamond:", event.gift.diamond_count)
-                    print(" repeat_count:", event.repeat_count)
-                    print(" repeat_end:", event.repeat_end)
-
+                    print("[GIFT] user:", event.user.unique_id)
                     send_to_targets(
                         "gift",
                         {
