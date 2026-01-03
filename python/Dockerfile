@@ -1,14 +1,13 @@
 FROM python:3.12-slim
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
 WORKDIR /app
 
+# 依存関係インストール
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# アプリ本体コピー
 COPY app/ ./app/
-COPY app/config/config.yaml ./app/config/config.yaml
 
+ENV MODE=dummy
 CMD ["python", "-m", "app.wrapper"]
