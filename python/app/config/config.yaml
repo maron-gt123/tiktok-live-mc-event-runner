@@ -3,9 +3,6 @@
 # =========================
   # production / dummy
 mode: dummy
-ws_url: "ws://127.0.0.1:12345"
-user_id: "dummy_user"
-user_nick: "DummyMC"
 # =========================
 # TikTok Live 設定
 # =========================
