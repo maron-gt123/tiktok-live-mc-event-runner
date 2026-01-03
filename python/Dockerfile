@@ -8,5 +8,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY *.py ./
 COPY config ./config
 
-ENV MODE=dummy
-CMD ["python", "-u", "wrapper.py"]
+# 直接 main.py を起動
+CMD ["python", "-u", "main.py"]
