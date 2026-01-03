@@ -4,8 +4,8 @@ import websocket
 
 def run_dummy(config):
     WS_URL = config.get("ws_url", "ws://127.0.0.1:12345")
-    USER_ID = config.get("user_id", "dummy_user")
-    USER_NICK = config.get("user_nick", "DummyMC")
+    USER_ID = "dummy_user"
+    USER_NICK = "DummyMC"
 
     ws = websocket.WebSocket()
     ws.connect(WS_URL)
