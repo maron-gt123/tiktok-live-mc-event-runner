@@ -1,11 +1,9 @@
-# python/app/dummy_main.py
-
-import json
 import time
-import websocket
 import yaml
+import json
+import os
+import requests
 from pathlib import Path
-
 
 def run_dummy():
     # =====================
@@ -15,15 +13,13 @@ def run_dummy():
     with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
-    # WebSocket URL は config から取得、なければデフォルト
-    WS_URL = config.get("ws_url", "ws://127.0.0.1:12345")
+    endpoints = config["sender"]["endpoints"]
+    http_timeout = config.get("http", {}).get("timeout", 2)
+
     USER_ID = config.get("user_id", "dummy_user")
     USER_NICK = config.get("user_nick", "DummyMC")
 
-    print(f"[DUMMY] Connecting to WebSocket {WS_URL} as {USER_ID} ({USER_NICK})")
-
-    ws = websocket.WebSocket()
-    ws.connect(WS_URL)
+    print(f"[DUMMY] Starting dummy event sender as {USER_ID} ({USER_NICK})")
 
     try:
         while True:
@@ -36,8 +32,12 @@ def run_dummy():
                     "timestamp": int(time.time()),
                     "count": 1
                 }
-                ws.send(json.dumps(evt))
-                print(f"[DUMMY] Sent LIKE: {evt}")
+                for ep in endpoints:
+                    try:
+                        res = requests.post(ep["url"], json=evt, timeout=http_timeout)
+                        print(f"[DUMMY] Sent LIKE to {ep['name']}: {res.status_code}")
+                    except Exception as e:
+                        print(f"[DUMMY] Failed LIKE to {ep['name']}: {e}")
                 time.sleep(0.2)
 
             # 2. ギフト（rose）
@@ -49,8 +49,12 @@ def run_dummy():
                 "gift_name": "rose",
                 "gift_amount": 1
             }
-            ws.send(json.dumps(evt))
-            print(f"[DUMMY] Sent GIFT: {evt}")
+            for ep in endpoints:
+                try:
+                    res = requests.post(ep["url"], json=evt, timeout=http_timeout)
+                    print(f"[DUMMY] Sent GIFT to {ep['name']}: {res.status_code}")
+                except Exception as e:
+                    print(f"[DUMMY] Failed GIFT to {ep['name']}: {e}")
             time.sleep(0.2)
 
             # 3. コメント（gg）
@@ -61,8 +65,12 @@ def run_dummy():
                 "timestamp": int(time.time()),
                 "comment": "gg"
             }
-            ws.send(json.dumps(evt))
-            print(f"[DUMMY] Sent COMMENT: {evt}")
+            for ep in endpoints:
+                try:
+                    res = requests.post(ep["url"], json=evt, timeout=http_timeout)
+                    print(f"[DUMMY] Sent COMMENT to {ep['name']}: {res.status_code}")
+                except Exception as e:
+                    print(f"[DUMMY] Failed COMMENT to {ep['name']}: {e}")
             time.sleep(0.2)
 
             # 4. フォロー
@@ -72,8 +80,12 @@ def run_dummy():
                 "user_nickname": USER_NICK,
                 "timestamp": int(time.time())
             }
-            ws.send(json.dumps(evt))
-            print(f"[DUMMY] Sent FOLLOW: {evt}")
+            for ep in endpoints:
+                try:
+                    res = requests.post(ep["url"], json=evt, timeout=http_timeout)
+                    print(f"[DUMMY] Sent FOLLOW to {ep['name']}: {res.status_code}")
+                except Exception as e:
+                    print(f"[DUMMY] Failed FOLLOW to {ep['name']}: {e}")
             time.sleep(0.2)
 
             # 5. シェア
@@ -83,13 +95,16 @@ def run_dummy():
                 "user_nickname": USER_NICK,
                 "timestamp": int(time.time())
             }
-            ws.send(json.dumps(evt))
-            print(f"[DUMMY] Sent SHARE: {evt}")
+            for ep in endpoints:
+                try:
+                    res = requests.post(ep["url"], json=evt, timeout=http_timeout)
+                    print(f"[DUMMY] Sent SHARE to {ep['name']}: {res.status_code}")
+                except Exception as e:
+                    print(f"[DUMMY] Failed SHARE to {ep['name']}: {e}")
             time.sleep(0.2)
 
     except KeyboardInterrupt:
         print("[DUMMY] Dummy mode stopped by user")
 
-    finally:
-        ws.close()
-        print("[DUMMY] WebSocket closed")
+if __name__ == "__main__":
+    run_dummy()
