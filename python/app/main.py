@@ -16,7 +16,7 @@ from TikTokLive.client.errors import UserOfflineError
 # =====================
 # config.yaml 読み込み
 # =====================
-with open("config.yaml", "r", encoding="utf-8") as f:
+with open("config/config.yaml", "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
 TIKTOK_USER = config["tiktok"]["user"]
