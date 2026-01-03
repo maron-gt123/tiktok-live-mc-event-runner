@@ -1,25 +1,40 @@
-import importlib.util
-from pathlib import Path
 import yaml
+import subprocess
+import sys
+import os
 
-CONFIG_PATH = Path("/app/config/config.yaml")
-with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+# =====================
+# 設定読み込み
+# =====================
+CONFIG_FILE = "config/config.yaml"
+
+if not os.path.exists(CONFIG_FILE):
+    print(f"Error: {CONFIG_FILE} not found.")
+    sys.exit(1)
+
+with open(CONFIG_FILE, "r", encoding="utf-8") as f:
     config = yaml.safe_load(f)
 
 mode = config.get("mode", "production").lower()
-print(f"[WRAPPER] Mode is {mode}. Running corresponding main...")
+print(f"Running in mode: {mode}")
 
-def load_module(name, path):
-    """指定パスからモジュールをロード"""
-    spec = importlib.util.spec_from_file_location(name, path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-main = load_module("main", "/app/main.py")
-dummy_main = load_module("dummy_main", "/app/dummy_main.py")
-
+# =====================
+# モードによって実行ファイルを切り替え
+# =====================
 if mode == "dummy":
-    dummy_main.run_dummy()
+    target_script = "dummy_main.py"
+elif mode == "production":
+    target_script = "main.py"
 else:
-    main.run_main()
+    print(f"Unknown mode: {mode}")
+    sys.exit(1)
+
+# =====================
+# サブプロセスで実行
+# =====================
+try:
+    subprocess.run([sys.executable, target_script], check=True)
+except FileNotFoundError:
+    print(f"Error: {target_script} not found.")
+except subprocess.CalledProcessError as e:
+    print(f"{target_script} exited with error: {e}")
