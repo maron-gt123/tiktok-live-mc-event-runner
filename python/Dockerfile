@@ -12,5 +12,8 @@ COPY app/*.py ./
 # Config を /app/config にコピー
 COPY app/config ./config
 
+# モード設定（必要に応じて override 可能）
+ENV MODE=dummy
+
 # 実行
-CMD ["python", "-m", "wrapper"]
+CMD ["python", "wrapper.py"]
