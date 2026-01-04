@@ -1,13 +1,22 @@
+# ===============================================
+# HTTP サーバ設定
+# ===============================================
 http:
   port: 4567
 
+# ===============================================
+# Trap（罠エリア）基本設定
+# ===============================================
 trap:
   block: GLASS
   full-block: STONE
 
 # ===============================================
-# MCLiveTrap イベントアクション設定
-# 外部イベント受信時に動作させたいものをここに定義
+# MCLiveTrap イベント → アクション定義
+# ===============================================
+# ・イベント検知時に、定義された command を実行する
+# ・command は commands/*.yml に定義された ID を指定
+# ・Javaコード側は command の中身を一切知らない
 # ===============================================
 
 events:
@@ -15,47 +24,32 @@ events:
   # -----------------------------------------------
   # ギフトイベント
   # ギフト名ごとにアクションを定義できます
+  # giftName 完全一致で判定
   #   enabled: false で無効化可能
   # -----------------------------------------------
   gift:
     # 代表的ギフト名例
-    Rose:   # バラ
+    Rose:
       actions:
-        - type: tnt
+        - command: bedrock_tnt
           amount: 1
           enabled: true
-        - type: message
-          text: "§cThanks for the Rose!"
+        - command: message_thanks
           enabled: true
 
-    I_Love_You:   # 愛してるギフト
+    I_Love_You:
       actions:
-        - type: tnt
+        - command: bedrock_tnt
           amount: 3
           enabled: true
-        - type: message
-          text: "§dHuge love gift!"
-          enabled: true
 
-    Sunglasses:
+    TikTok_Universe:
       actions:
-        - type: zombie
-          amount: 5
-          enabled: true
-        - type: message
-          text: "§bCool shades incoming!"
-          enabled: true
-
-    TikTok_Universe:  # 豪華ギフト（例）
-      actions:
-        - type: tnt
+        - command: bedrock_tnt
           amount: 8
           enabled: true
-        - type: zombie
+        - command: zombie_swarm
           amount: 10
-          enabled: true
-        - type: message
-          text: "§6Epic Universe Gift!"
           enabled: true
 
   # -----------------------------------------------
@@ -65,11 +59,10 @@ events:
   like:
     threshold: 50
     actions:
-      - type: zombie
+      - command: zombie_swarm
         amount: 1
         enabled: true
-      - type: message
-        text: "§aLikes exploded!"
+      - command: like_message
         enabled: true
 
   # -----------------------------------------------
@@ -77,11 +70,10 @@ events:
   # -----------------------------------------------
   follow:
     actions:
-      - type: tnt
+      - command: bedrock_tnt
         amount: 2
         enabled: true
-      - type: message
-        text: "§bNew follower hype!"
+      - command: follow_message
         enabled: true
 
   # -----------------------------------------------
@@ -89,8 +81,7 @@ events:
   # -----------------------------------------------
   share:
     actions:
-      - type: message
-        text: "§dThanks for sharing!"
+      - command: share_message
         enabled: true
 
   # -----------------------------------------------
@@ -98,9 +89,9 @@ events:
   # -----------------------------------------------
   subscribe:
     actions:
-      - type: tnt
+      - command: bedrock_tnt
         amount: 2
         enabled: true
-      - type: message
-        text: "§6Thanks for subscribing!"
+      - command: subscribe_message
+        enabled: true
         enabled: true
