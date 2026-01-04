@@ -1,4 +1,4 @@
-package jp.example.mclivetrap.command;
+package jp.example.mclivetrap.commandloader;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
