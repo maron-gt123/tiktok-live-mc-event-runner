@@ -139,7 +139,7 @@ while True:
                         "nickname": nickname,
                         "total_likes": total_likes,
                         "uniqueUserCount": unique_users,
-                        "overallLikes": overall_likes,
+                        "overallLikes": overallLikes,
                     },
                 )
                 # 古いユーザーを削除
