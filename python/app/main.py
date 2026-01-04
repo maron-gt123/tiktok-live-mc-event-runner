@@ -118,8 +118,10 @@ while True:
         # =====================
         # いいね
         # =====================
+
         @client.on(LikeEvent)
         async def on_like(event: LikeEvent):
+            global overallLikes
             try:
                 uid = event.user.unique_id
                 nickname = event.user.nickname
