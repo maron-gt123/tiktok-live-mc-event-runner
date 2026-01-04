@@ -1,2 +1,13 @@
+# =====================================
+# message 投下コマンド定義
+# =====================================
+
+# commands は複数行OK
 commands:
   - "/say §cThanks for the Rose, {player}!"
+
+# プレースホルダ例
+# {player}  → nickname または playerName
+# {randX}   → -2 から 2 のランダム整数
+# {randZ}   → -2 から 2 のランダム整数
+# {amount}  → config.yml 側で指定された回数
