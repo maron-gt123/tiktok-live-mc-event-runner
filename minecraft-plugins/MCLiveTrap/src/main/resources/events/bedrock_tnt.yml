@@ -1,0 +1,14 @@
+# =====================================
+# TNT 投下コマンド定義
+# =====================================
+
+# commands は複数行OK
+commands:
+  - "/execute at {player} run summon tnt ~{randX} ~ ~{randZ} {fuse:20}"
+  - "/execute at {player} run summon tnt ~{randX} ~ ~{randZ} {fuse:20}"
+
+# プレースホルダ例
+# {player}  → nickname または playerName
+# {randX}   → -2 から 2 のランダム整数
+# {randZ}   → -2 から 2 のランダム整数
+# {amount}  → config.yml 側で指定された回数
