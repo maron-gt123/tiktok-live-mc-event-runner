@@ -8,6 +8,10 @@ import jp.example.mclivetrap.listener.TrapProtectListener;
 import jp.example.mclivetrap.tnt.TNTAttackService;
 import jp.example.mclivetrap.listener.TrapBoxPlaceListener;
 import org.bukkit.plugin.java.JavaPlugin;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 public class MCLiveTrapPlugin extends JavaPlugin {
 
@@ -30,6 +34,9 @@ public class MCLiveTrapPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TNTExplodeListener(), this);
         getServer().getPluginManager().registerEvents(new TrapProtectListener(trapBoxManager), this);
         getServer().getPluginManager().registerEvents(new TrapBoxPlaceListener(trapBoxManager), this);
+
+        // events ディレクトリ作成 & デフォルトイベントコピー
+        setupEventsFolder();
 
         httpServerService = new HttpServerService(this, trapBoxManager, tntAttackService);
         httpServerService.start();
@@ -59,5 +66,33 @@ public class MCLiveTrapPlugin extends JavaPlugin {
 
     public void setGameActive(boolean active) {
         this.gameActive = active;
+    }
+
+    /**
+     * プラグイン起動時に resources/events/*.yml を plugins/MCLiveTrap/events/ にコピー
+     */
+    private void setupEventsFolder() {
+        File eventsDir = new File(getDataFolder(), "events");
+        if (!eventsDir.exists()) eventsDir.mkdirs();
+
+        // デフォルトイベントファイルリスト
+        String[] defaultEvents = {"bedrock_tnt.yml", "message_thanks.yml"};
+
+        for (String fileName : defaultEvents) {
+            File outFile = new File(eventsDir, fileName);
+            if (!outFile.exists()) { // 既存ファイルは上書きしない
+                try (InputStream is = getResource("events/" + fileName)) {
+                    if (is != null) {
+                        Files.copy(is, outFile.toPath());
+                        getLogger().info("Copied default event file: " + fileName);
+                    } else {
+                        getLogger().warning("Default event resource not found: " + fileName);
+                    }
+                } catch (IOException e) {
+                    getLogger().severe("Failed to copy event file: " + fileName);
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
