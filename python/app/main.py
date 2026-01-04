@@ -131,7 +131,7 @@ while True:
                 unique_users = len(like_map)
                 overallLikes += 1
 
-                print(f"[LIKE] {nickname} ({uid}) total this session: {total_likes} | unique users: {unique_users} | overall likes: {overall_likes}")
+                print(f"[LIKE] {nickname} ({uid}) total this session: {total_likes} | unique users: {unique_users} | overall likes: {overallLikes}")
                 send_to_targets(
                     "like",
                     {
