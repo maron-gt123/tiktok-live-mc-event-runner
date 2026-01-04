@@ -2,7 +2,7 @@ import time
 import traceback
 import requests
 import yaml
-
+from collections import defaultdict
 from TikTokLive import TikTokLiveClient
 from TikTokLive.events import (
     GiftEvent,
@@ -52,6 +52,36 @@ def send_to_targets(event_type: str, data: dict):
             print(f"[SEND ERROR] {ep['name']}:", e)
 
 # =====================
+# ユーザーごとの Like 分計用
+# =====================
+like_map = defaultdict(int)  # {user_id: like_count}
+last_seen_map = {}           # {user_id: last_event_time}
+CLEANUP_INTERVAL = 60        # 古いユーザー削除のチェック間隔（秒）
+INACTIVE_TIMEOUT = 120       # 一定時間イベントなしのユーザーは削除（秒）
+last_cleanup_time = time.time()
+overallLikes = 0             # 配信全体いいね総数
+
+def cleanup_inactive_users():
+    global last_cleanup_time
+    now = time.time()
+    # CLEANUP_INTERVALごとに実行
+    if now - last_cleanup_time < CLEANUP_INTERVAL:
+        return
+    last_cleanup_time = now
+
+    to_delete = [uid for uid, t in last_seen_map.items() if now - t > INACTIVE_TIMEOUT]
+    for uid in to_delete:
+        like_map.pop(uid, None)
+        last_seen_map.pop(uid, None)
+
+def reset_like_counts():
+    """配信開始時や必要に応じて全リセット"""
+    global like_map, last_seen_map, overallLikes
+    like_map.clear()
+    last_seen_map.clear()
+    overallLikes = 0
+
+# =====================
 # メインループ（再接続対応）
 # =====================
 while True:
@@ -67,14 +97,7 @@ while True:
         @client.on(GiftEvent)
         async def on_gift(event: GiftEvent):
             try:
-                print("[GIFT]")
-                print(" user:", event.user.unique_id)
-                print(" nickname:", event.user.nickname)
-                print(" gift_id:", event.gift.id)
-                print(" name:", event.gift.name)
-                print(" diamond:", event.gift.diamond_count)
-                print(" repeat_count:", event.repeat_count)
-                print(" repeat_end:", event.repeat_end)
+                print("[GIFT]", event.user.unique_id, event.gift.name, "x", event.repeat_count)
 
                 send_to_targets(
                     "gift",
@@ -98,15 +121,28 @@ while True:
         @client.on(LikeEvent)
         async def on_like(event: LikeEvent):
             try:
-                print("[LIKE]", event.user.unique_id,"(" + event.user.nickname + ")",)
+                uid = event.user.unique_id
+                nickname = event.user.nickname
+                like_map[uid] += 1
+                last_seen_map[uid] = time.time()
+                total_likes = like_map[uid]
+                unique_users = len(like_map)
+                overallLikes += 1
 
+                print(f"[LIKE] {nickname} ({uid}) total this session: {total_likes} | unique users: {unique_users} | overall likes: {overall_likes}")
                 send_to_targets(
                     "like",
                     {
-                        "user": event.user.unique_id,
-                        "nickname": event.user.nickname,
+                        "user": uid,
+                        "nickname": nickname,
+                        "total_likes": total_likes,
+                        "uniqueUserCount": unique_users,
+                        "overallLikes": overall_likes,
                     },
                 )
+                # 古いユーザーを削除
+                cleanup_inactive_users()
+
             except Exception:
                 print("Like handler error:")
                 traceback.print_exc()
