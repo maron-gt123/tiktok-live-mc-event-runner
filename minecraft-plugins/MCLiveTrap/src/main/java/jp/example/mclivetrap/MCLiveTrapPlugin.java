@@ -29,7 +29,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
 
         trapBoxManager = new TrapBoxManager();
         tntAttackService = new TNTAttackService(trapBoxManager);
-        commandLoader = new CommandLoader(this);
+	commandLoader = new CommandLoader(this);
 
         TrapCommand trapCommand = new TrapCommand(trapBoxManager, this);
         getCommand("mclivetrap").setExecutor(trapCommand);
@@ -47,7 +47,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
         getLogger().info("MCLiveTrap enabled");
     }
     public CommandLoader getCommandLoader() {
-        return commandLoader;
+	return commandLoader;
     }
 
     @Override
