@@ -69,6 +69,7 @@ while True:
             try:
                 print("[GIFT]")
                 print(" user:", event.user.unique_id)
+                print(" nickname:", event.user.nickname)
                 print(" gift_id:", event.gift.id)
                 print(" name:", event.gift.name)
                 print(" diamond:", event.gift.diamond_count)
@@ -79,6 +80,7 @@ while True:
                     "gift",
                     {
                         "user": event.user.unique_id,
+                        "nickname": event.user.nickname,
                         "gift_id": event.gift.id,
                         "gift_name": event.gift.name,
                         "diamond": event.gift.diamond_count,
@@ -96,12 +98,13 @@ while True:
         @client.on(LikeEvent)
         async def on_like(event: LikeEvent):
             try:
-                print("[LIKE]", event.user.unique_id)
+                print("[LIKE]", event.user.unique_id,"(" + event.user.nickname + ")",)
 
                 send_to_targets(
                     "like",
                     {
                         "user": event.user.unique_id,
+                        "nickname": event.user.nickname,
                     },
                 )
             except Exception:
@@ -114,12 +117,13 @@ while True:
         @client.on(FollowEvent)
         async def on_follow(event: FollowEvent):
             try:
-                print("[FOLLOW]", event.user.unique_id)
+                print("[FOLLOW]", event.user.unique_id."(" + event.user.nickname + ")",)
 
                 send_to_targets(
                     "follow",
                     {
                         "user": event.user.unique_id,
+                        "nickname": event.user.nickname,
                     },
                 )
             except Exception:
@@ -132,12 +136,13 @@ while True:
         @client.on(ShareEvent)
         async def on_share(event: ShareEvent):
             try:
-                print("[SHARE]", event.user.unique_id)
+                print("[SHARE]", event.user.unique_id,"(" + event.user.nickname + ")",)
 
                 send_to_targets(
                     "share",
                     {
                         "user": event.user.unique_id,
+                        "nickname": event.user.nickname,
                     },
                 )
             except Exception:
@@ -150,12 +155,13 @@ while True:
         @client.on(SubscribeEvent)
         async def on_subscribe(event: SubscribeEvent):
             try:
-                print("[SUBSCRIBE]", event.user.unique_id)
+                print("[SUBSCRIBE]", event.user.unique_id,"nickname": event.user.nickname,)
 
                 send_to_targets(
                     "subscribe",
                     {
                         "user": event.user.unique_id,
+                        "nickname": event.user.nickname,
                     },
                 )
             except Exception:
