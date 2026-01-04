@@ -2,6 +2,7 @@ package jp.example.mclivetrap;
 
 import jp.example.mclivetrap.box.TrapBoxManager;
 import jp.example.mclivetrap.command.TrapCommand;
+import jp.example.mclivetrap.commandloader.CommandLoader;
 import jp.example.mclivetrap.http.HttpServerService;
 import jp.example.mclivetrap.listener.TNTExplodeListener;
 import jp.example.mclivetrap.listener.TrapProtectListener;
@@ -18,6 +19,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
     private TrapBoxManager trapBoxManager;
     private TNTAttackService tntAttackService;
     private HttpServerService httpServerService;
+    private CommandLoader commandLoader;
 
     private boolean gameActive = false; // ゲーム状態管理
 
@@ -27,6 +29,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
 
         trapBoxManager = new TrapBoxManager();
         tntAttackService = new TNTAttackService(trapBoxManager);
+        commandLoader = new CommandLoader(this);
 
         TrapCommand trapCommand = new TrapCommand(trapBoxManager, this);
         getCommand("mclivetrap").setExecutor(trapCommand);
@@ -42,6 +45,9 @@ public class MCLiveTrapPlugin extends JavaPlugin {
         httpServerService.start();
 
         getLogger().info("MCLiveTrap enabled");
+    }
+    public CommandLoader getCommandLoader() {
+        return commandLoader;
     }
 
     @Override
