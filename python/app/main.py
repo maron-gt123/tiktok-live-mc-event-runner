@@ -117,7 +117,7 @@ while True:
         @client.on(FollowEvent)
         async def on_follow(event: FollowEvent):
             try:
-                print("[FOLLOW]", event.user.unique_id."(" + event.user.nickname + ")",)
+                print("[FOLLOW]", event.user.unique_id,"(" + event.user.nickname + ")",)
 
                 send_to_targets(
                     "follow",
@@ -155,7 +155,7 @@ while True:
         @client.on(SubscribeEvent)
         async def on_subscribe(event: SubscribeEvent):
             try:
-                print("[SUBSCRIBE]", event.user.unique_id,"nickname": event.user.nickname,)
+                print("[SUBSCRIBE]", event.user.unique_id, "(" + event.user.nickname + ")")
 
                 send_to_targets(
                     "subscribe",
