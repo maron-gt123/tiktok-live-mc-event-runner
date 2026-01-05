@@ -8,11 +8,12 @@ import jp.example.mclivetrap.MCLiveTrapPlugin;
 import jp.example.mclivetrap.box.TrapBox;
 import jp.example.mclivetrap.box.TrapBoxManager;
 import jp.example.mclivetrap.commandloader.CommandLoader;
+import jp.example.mclivetrap.config.ConfigManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Random;
@@ -22,19 +23,22 @@ public class WebhookController implements HttpHandler {
     private final MCLiveTrapPlugin plugin;
     private final TrapBoxManager trapBoxManager;
     private final CommandLoader commandLoader;
+    private final ConfigManager configManager;
     private final Random random = new Random();
 
     public WebhookController(MCLiveTrapPlugin plugin,
                              TrapBoxManager trapBoxManager,
-                             CommandLoader commandLoader) {
+                             CommandLoader commandLoader,
+                             ConfigManager configManager) {
         this.plugin = plugin;
         this.trapBoxManager = trapBoxManager;
         this.commandLoader = commandLoader;
+        this.configManager = configManager;
     }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        if (!exchange.getRequestMethod().equalsIgnoreCase("POST")) {
+        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
             exchange.sendResponseHeaders(405, -1);
             return;
         }
@@ -42,27 +46,40 @@ public class WebhookController implements HttpHandler {
         String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         plugin.getLogger().info("Received webhook: " + body);
 
+        // ゲーム未開始時は処理せず OK を返す
         if (!plugin.isGameActive()) {
-            plugin.getLogger().info("Webhook received but game is not active yet: " + body);
-            exchange.sendResponseHeaders(200, 0);
-            exchange.getResponseBody().close();
+            plugin.getLogger().info("Webhook received but game is not active yet");
+            sendResponse(exchange, 200, "Game not active");
             return;
         }
 
         try {
             JsonObject json = JsonParser.parseString(body).getAsJsonObject();
-            String type = json.get("type").getAsString();
-            JsonObject data = json.getAsJsonObject("data");
+            String type = json.has("type") ? json.get("type").getAsString() : null;
+            JsonObject data = json.has("data") ? json.getAsJsonObject("data") : null;
+
+            if (type == null || data == null) {
+                plugin.getLogger().warning("Webhook missing type or data");
+                sendResponse(exchange, 400, "Missing type or data");
+                return;
+            }
 
             Bukkit.getScheduler().runTask(plugin, () -> handleEvent(type, data));
 
-            exchange.sendResponseHeaders(200, 0);
+            sendResponse(exchange, 200, "OK");
+
         } catch (Exception e) {
-            plugin.getLogger().warning("Invalid webhook payload");
-            e.printStackTrace();
-            exchange.sendResponseHeaders(400, 0);
-        } finally {
-            exchange.getResponseBody().close();
+            plugin.getLogger().warning("Invalid webhook payload: " + e.getMessage());
+            plugin.getLogger().fine("StackTrace: " + e);
+            sendResponse(exchange, 400, "Invalid payload");
+        }
+    }
+
+    private void sendResponse(HttpExchange exchange, int statusCode, String message) throws IOException {
+        byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, bytes.length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(bytes);
         }
     }
 
@@ -71,64 +88,62 @@ public class WebhookController implements HttpHandler {
                 ? data.get("nickname").getAsString()
                 : data.get("user").getAsString();
 
-        // 標準メッセージ
-        switch (type) {
+        // 標準メッセージ表示
+        switch (type.toLowerCase()) {
             case "like" -> Bukkit.broadcastMessage("§a[LIKE] §f" + nickname);
             case "follow" -> Bukkit.broadcastMessage("§b[FOLLOW] §f" + nickname);
             case "share" -> Bukkit.broadcastMessage("§d[SHARE] §f" + nickname);
             case "gift" -> {
-                String giftName = data.get("gift_name").getAsString();
-                int count = data.get("count").getAsInt();
+                String giftName = data.has("gift_name") ? data.get("gift_name").getAsString() : "Unknown";
+                int count = data.has("count") ? data.get("count").getAsInt() : 1;
                 Bukkit.broadcastMessage("§c[GIFT] §f" + nickname + " sent " + giftName + " x" + count);
             }
             case "subscribe" -> Bukkit.broadcastMessage("§6[SUBSCRIBE] §f" + nickname);
             default -> plugin.getLogger().warning("Unknown event type: " + type);
         }
 
-        // コマンド実行
-        String commandId;
-        if ("gift".equalsIgnoreCase(type)) {
-            commandId = data.get("gift_name").getAsString();
-        } else {
-            commandId = type;
-        }
-
-        List<String> commands = commandLoader.getCommands(commandId);
-        if (commands.isEmpty()) return;
-
-        if (!trapBoxManager.hasTrapBox()) {
+        // TrapBox がない場合はスキップ
+        List<TrapBox> boxes = trapBoxManager.getTrapBoxes();
+        if (boxes.isEmpty()) {
             plugin.getLogger().warning("No TrapBox exists, skipping commands");
             return;
         }
 
-        // 複数 TrapBox があればランダム選択
-        TrapBox box = trapBoxManager.getTrapBoxes().get(random.nextInt(trapBoxManager.getTrapBoxes().size()));
+        // ランダム選択
+        TrapBox box = boxes.get(random.nextInt(boxes.size()));
 
-        int amount = 1; // デフォルト 1 回
-        if (data.has("count")) {
-            amount = data.get("count").getAsInt();
-        }
+        // config.yml から該当イベントの action を取得
+        List<ConfigManager.Action> actions = "gift".equalsIgnoreCase(type) && data.has("gift_name")
+                ? configManager.getGiftActions(data.get("gift_name").getAsString())
+                : configManager.getEventActions(type);
 
-        for (int i = 0; i < amount; i++) {
-            for (String cmdTemplate : commands) {
-                String cmd = replacePlaceholders(cmdTemplate, nickname, box);
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+        if (actions == null || actions.isEmpty()) return;
+
+        for (ConfigManager.Action action : actions) {
+            if (!action.enabled()) continue;
+
+            List<String> commands = commandLoader.getCommands(action.command());
+            if (commands.isEmpty()) continue;
+
+            int amount = Math.max(1, action.amount());
+
+            for (int i = 0; i < amount; i++) {
+                for (String cmdTemplate : commands) {
+                    String cmd = replacePlaceholders(cmdTemplate, nickname, box);
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+                }
             }
         }
     }
 
     private String replacePlaceholders(String template, String playerName, TrapBox box) {
         Location loc = box.getRandomInnerLocation();
-        int randX = loc.getBlockX();
-        int randZ = loc.getBlockZ();
-
-        // {randX} と {randZ} を TrapBox 内ランダムに置換
         int offsetX = random.nextInt(5) - 2; // -2 〜 2
         int offsetZ = random.nextInt(5) - 2;
 
         return template
                 .replace("{player}", playerName)
-                .replace("{randX}", String.valueOf(randX + offsetX))
-                .replace("{randZ}", String.valueOf(randZ + offsetZ));
+                .replace("{randX}", String.valueOf(loc.getBlockX() + offsetX))
+                .replace("{randZ}", String.valueOf(loc.getBlockZ() + offsetZ));
     }
 }

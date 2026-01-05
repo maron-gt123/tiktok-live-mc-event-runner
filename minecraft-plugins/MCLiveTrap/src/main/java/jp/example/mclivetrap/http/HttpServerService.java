@@ -1,8 +1,8 @@
 package jp.example.mclivetrap.http;
 
 import com.sun.net.httpserver.HttpServer;
+import jp.example.mclivetrap.config.ConfigManager;
 import jp.example.mclivetrap.box.TrapBoxManager;
-//import jp.example.mclivetrap.tnt.TNTAttackService;
 import org.bukkit.plugin.java.JavaPlugin;
 import jp.example.mclivetrap.MCLiveTrapPlugin;
 import jp.example.mclivetrap.commandloader.CommandLoader;
@@ -15,22 +15,23 @@ public class HttpServerService {
 
     private final MCLiveTrapPlugin plugin;
     private final TrapBoxManager trapBoxManager;
-    //private final TNTAttackService tntService;
     private final CommandLoader commandLoader;
+    private final ConfigManager configManager;
     private HttpServer server;
     private final int port;
 
-    public HttpServerService(MCLiveTrapPlugin plugin, TrapBoxManager trapBoxManager, CommandLoader commandLoader) {
+    public HttpServerService(MCLiveTrapPlugin plugin, TrapBoxManager trapBoxManager, CommandLoader commandLoader, ConfigManager configManager) {
         this.plugin = plugin;
         this.trapBoxManager = trapBoxManager;
         this.commandLoader = commandLoader;
+        this.configManager = configManager;
         this.port = plugin.getConfig().getInt("http.port", 4567);
     }
 
     public void start() {
         try {
             server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
-            server.createContext("/event", new WebhookController(plugin, trapBoxManager, commandLoader));
+            server.createContext("/event", new WebhookController(plugin, trapBoxManager, commandLoader, configManager));
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
             plugin.getLogger().info("HTTP server listening on 0.0.0.0:" + port + " (/event)");

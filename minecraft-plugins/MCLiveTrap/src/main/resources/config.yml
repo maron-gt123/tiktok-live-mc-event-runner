@@ -2,7 +2,7 @@
 # HTTP サーバ設定
 # ===============================================
 http:
-  port: 4567
+  port: 30000
 
 # ===============================================
 # Trap（罠エリア）基本設定
@@ -57,12 +57,12 @@ events:
   # threshold は一定数の like で発動トリガーに使える（任意）
   # -----------------------------------------------
   like:
-    threshold: 50
+    threshold: 1
     actions:
-      - command: zombie_swarm
+      - command: bedrock_tnt
         amount: 1
         enabled: true
-      - command: like_message
+      - command: message_thanks
         enabled: true
 
   # -----------------------------------------------

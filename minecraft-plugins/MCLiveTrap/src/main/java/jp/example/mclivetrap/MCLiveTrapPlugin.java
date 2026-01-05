@@ -3,6 +3,7 @@ package jp.example.mclivetrap;
 import jp.example.mclivetrap.box.TrapBoxManager;
 import jp.example.mclivetrap.command.TrapCommand;
 import jp.example.mclivetrap.commandloader.CommandLoader;
+import jp.example.mclivetrap.config.ConfigManager;
 import jp.example.mclivetrap.http.HttpServerService;
 import jp.example.mclivetrap.listener.TNTExplodeListener;
 import jp.example.mclivetrap.listener.TrapProtectListener;
@@ -20,6 +21,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
     private TNTAttackService tntAttackService;
     private HttpServerService httpServerService;
     private CommandLoader commandLoader;
+    private ConfigManager configManager;
 
     private boolean gameActive = false; // ゲーム状態管理
 
@@ -33,6 +35,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
         trapBoxManager = new TrapBoxManager();
         tntAttackService = new TNTAttackService(trapBoxManager);
         commandLoader = new CommandLoader(this);
+        configManager = new ConfigManager(getResource("config.yml"));
 
         // コマンド登録
         TrapCommand trapCommand = new TrapCommand(trapBoxManager, this);
@@ -47,7 +50,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
         setupEventsFolder();
 
         // HTTPサーバ起動
-        httpServerService = new HttpServerService(this, trapBoxManager, commandLoader);
+        httpServerService = new HttpServerService(this, trapBoxManager, commandLoader, configManager);
         httpServerService.start();
 
         getLogger().info("MCLiveTrap enabled");
