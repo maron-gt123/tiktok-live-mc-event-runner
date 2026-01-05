@@ -25,23 +25,29 @@ public class MCLiveTrapPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
+        // 設定ファイルをロード
         saveDefaultConfig();
 
+        // マネージャ・サービス初期化
         trapBoxManager = new TrapBoxManager();
         tntAttackService = new TNTAttackService(trapBoxManager);
         commandLoader = new CommandLoader(this);
 
+        // コマンド登録
         TrapCommand trapCommand = new TrapCommand(trapBoxManager, this);
         getCommand("mclivetrap").setExecutor(trapCommand);
 
+        // イベントリスナー登録
         getServer().getPluginManager().registerEvents(new TNTExplodeListener(), this);
         getServer().getPluginManager().registerEvents(new TrapProtectListener(trapBoxManager), this);
         getServer().getPluginManager().registerEvents(new TrapBoxPlaceListener(trapBoxManager), this);
 
-        // events ディレクトリ作成 & デフォルトイベントコピー
+        // events ディレクトリ作成 & デフォルトイベントコピー 詳細は下部
         setupEventsFolder();
 
-        httpServerService = new HttpServerService(this, trapBoxManager, tntAttackService);
+        // HTTPサーバ起動
+        httpServerService = new HttpServerService(this, trapBoxManager, commandLoader);
         httpServerService.start();
 
         getLogger().info("MCLiveTrap enabled");
@@ -52,6 +58,7 @@ public class MCLiveTrapPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // HTTPサーバー停止時の処理
         if (httpServerService != null) {
             httpServerService.stop();
         }
@@ -61,22 +68,17 @@ public class MCLiveTrapPlugin extends JavaPlugin {
     public TrapBoxManager getTrapBoxManager() {
         return trapBoxManager;
     }
-
     public TNTAttackService getTntAttackService() {
         return tntAttackService;
     }
-
     public boolean isGameActive() {
         return gameActive;
     }
-
     public void setGameActive(boolean active) {
         this.gameActive = active;
     }
 
-    /**
-     * プラグイン起動時に resources/events/*.yml を plugins/MCLiveTrap/events/ にコピー
-     */
+     // プラグイン起動時に resources/events/*.yml を plugins/MCLiveTrap/events/ にコピー*//
     private void setupEventsFolder() {
         File eventsDir = new File(getDataFolder(), "events");
         if (!eventsDir.exists()) eventsDir.mkdirs();
